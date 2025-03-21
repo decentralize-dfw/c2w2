@@ -1,0 +1,2184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Open Source Avatars</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        /* Global styles */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Lucida Console", monospace;
+        }
+        
+        body {
+            background-color: transparent;
+            overflow: hidden;
+            color: #000;
+        }
+        
+        /* Main container */
+        .container {
+            display: flex;
+            flex-direction: column;
+            height: 800px;
+            width: 100vw;
+            margin: 0 auto;
+            overflow: hidden;
+            position: relative;
+        }
+        
+        /* Top section with filters and search */
+        .top-section {
+            height: 80px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.3);
+            z-index: 10;
+        }
+        
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+        }
+        
+        /* Collection filters at top left */
+        .collections {
+            display: flex;
+            gap: 5px;
+            z-index: 6;
+        }
+        
+        /* Media button at top right */
+        .media-btn-container {
+            z-index: 6;
+        }
+        
+        .collection-btn, .media-btn {
+            padding: 5px 10px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+            color: #000;
+        }
+        
+        .collection-btn:hover, .media-btn:hover {
+            background-color: rgba(240, 240, 240, 0.9);
+        }
+        
+        .collection-btn.active, .media-btn.active {
+            background-color: rgba(100, 100, 100, 0.8);
+            color: white;
+        }
+        
+        /* Search bar below controls */
+        .search-container {
+            width: 100%;
+            z-index: 6;
+        }
+        
+        .search-input {
+            padding: 6px 12px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+            font-size: 14px;
+            width: 100%;
+            max-width: 300px;
+            font-family: "Lucida Console", monospace;
+        }
+        
+        /* Viewer container */
+        .viewer-container {
+            position: absolute;
+            z-index: 1;
+            overflow: visible;
+        }
+        
+        #viewer-canvas {
+            width: 100%;
+            height: 100%;
+        }
+        
+        /* Viewer controls */
+        .viewer-controls {
+            position: absolute;
+            display: flex;
+            z-index: 5;
+            width: 250px;
+        }
+        
+        .control-btn {
+            padding: 8px 15px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            background-color: rgba(240, 240, 240, 0.8);
+            color: #000;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+            width: 50%;
+        }
+        
+        .control-btn:hover {
+            background-color: rgba(220, 220, 220, 0.9);
+        }
+        
+        .control-btn.active {
+            background-color: rgba(100, 100, 100, 0.8);
+            color: white;
+        }
+        
+        /* Avatar details panel */
+        .avatar-details {
+            position: absolute;
+            border-radius: 4px;
+            padding: 15px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            max-height: 500px;
+            overflow-y: auto;
+            z-index: 4;
+            color: #000;
+            background-color: rgba(255, 255, 255, 0.9);
+            width: 250px;
+        }
+        
+        .details-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        
+        .details-info {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .details-row {
+            display: flex;
+            margin-bottom: 5px;
+        }
+        
+        .details-label {
+            font-weight: bold;
+            width: 100px;
+            color: rgba(0, 0, 0, 0.7);
+        }
+        
+        .details-value {
+            flex-grow: 1;
+        }
+        
+        /* Action buttons */
+        .action-buttons {
+            position: absolute;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            z-index: 5;
+            width: 250px;
+        }
+        
+        .action-btn {
+            padding: 10px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+            transition: all 0.2s;
+            font-family: "Lucida Console", monospace;
+            text-align: center;
+            white-space: nowrap;
+            background-color: #FFFFFF;
+            color: #000000;
+        }
+        
+        .action-btn:hover {
+            opacity: 0.9;
+        }
+        
+        /* All buttons with white background and black text */
+        .download-btn, .buy-btn, .view-artwork-btn, .mint-avatar-btn, .mint-artwork-btn {
+            background-color: #FFFFFF;
+            color: #000000;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+        }
+        
+        /* Avatar row section - simplified for better control */
+        .bottom-section {
+            position: absolute;
+            bottom: 30px;
+            left: 0;
+            right: 0;
+            height: 80px;
+            z-index: 5;
+            pointer-events: none;
+            text-align: center;
+        }
+        
+        /* Horizontal avatar selector - simplified */
+        .avatar-selector {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            pointer-events: none;
+        }
+        
+        /* Avatar carousel - uses flexbox for centering */
+        .avatar-carousel {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+        
+        /* Individual avatar items */
+        .avatar-item {
+            width: 60px;
+            height: 60px;
+            position: absolute;
+            transform-origin: center;
+            transition: all 0.3s ease;
+            opacity: 0.7;
+            z-index: 1;
+            margin: 0;
+            padding: 0;
+            pointer-events: auto;
+            cursor: pointer;
+        }
+        
+        .avatar-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+            background-color: #fff;
+        }
+        
+        .avatar-item.active .avatar-thumbnail {
+            border-color: rgba(0, 120, 255, 0.8);
+            box-shadow: 0 0 10px rgba(0, 120, 255, 0.5);
+            opacity: 1;
+        }
+        
+        .avatar-name {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
+        }
+        
+        .avatar-item:hover .avatar-name {
+            opacity: 1;
+        }
+        
+        /* Media View */
+        .media-view {
+            position: absolute;
+            background-color: transparent;
+            z-index: 2;
+            display: none;
+        }
+        
+        .media-content {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-color: rgba(255, 255, 255, 0.6);
+            overflow: hidden;
+        }
+        
+        .media-preview {
+            max-width: 80%;
+            max-height: 80%;
+            margin: 0 auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+        }
+        
+        .media-image {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .media-video-container {
+            width: 100%;
+            max-width: 80%;
+            max-height: 80%;
+            position: relative;
+        }
+        
+        .media-video {
+            width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+        }
+        
+        .media-text {
+            width: 80%;
+            max-height: 80%;
+            padding: 20px;
+            background-color: rgba(255, 255, 255, 0.9);
+            overflow-y: auto;
+            border-radius: 8px;
+            color: #000;
+            font-size: 16px;
+            line-height: 1.5;
+            text-align: left;
+        }
+        
+        /* Media item styling */
+        .media-item {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            transform-origin: center center;
+            opacity: 0.7;
+            z-index: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            pointer-events: auto;
+        }
+        
+        .media-item.image {
+            background-color: #3498db;
+        }
+        
+        .media-item.video {
+            background-color: #e74c3c;
+        }
+        
+        .media-item.text {
+            background-color: #2ecc71;
+        }
+        
+        .media-item-thumbnail {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 8px;
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        
+        .media-item.active .media-item-thumbnail {
+            border-color: rgba(0, 120, 255, 0.8);
+            box-shadow: 0 0 10px rgba(0, 120, 255, 0.5);
+        }
+        
+        .media-item-name {
+            position: absolute;
+            top: -25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(255, 255, 255, 0.8);
+            color: #000;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            white-space: nowrap;
+            transition: opacity 0.3s ease;
+            pointer-events: none;
+            z-index: 20;
+            opacity: 0;
+        }
+        
+        .media-item:hover .media-item-name {
+            opacity: 1;
+        }
+        
+        /* Loading indicator */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: transparent;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            color: #000;
+        }
+        
+        .loading-text {
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            background-color: rgba(255, 255, 255, 0.7);
+            padding: 5px 15px;
+            border-radius: 4px;
+        }
+        
+        .loading-progress {
+            width: 200px;
+            height: 6px;
+            background-color: rgba(0, 0, 0, 0.1);
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: rgba(0, 120, 255, 0.8);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+    </style>
+    <!-- Load Three.js and required libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/GLTFLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/DRACOLoader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/KTX2Loader.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/libs/meshopt_decoder.module.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/controls/OrbitControls.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.128.0/examples/js/loaders/RGBELoader.js"></script>
+</head>
+<body>
+    <div class="container">
+        <!-- Top section with collection filters and search -->
+        <div class="top-section">
+            <div class="top-controls">
+                <div class="collections" id="collections">
+                    <!-- Collection buttons will be generated dynamically -->
+                </div>
+                
+                <div class="media-btn-container">
+                    <button class="media-btn" id="media-btn">Media</button>
+                </div>
+            </div>
+            
+            <!-- Search bar below collections -->
+            <div class="search-container">
+                <input type="text" class="search-input" id="search-input" placeholder="Search avatars...">
+            </div>
+        </div>
+        
+        <!-- Main content area with 3D viewer -->
+        <div class="viewer-container" id="viewer-container">
+            <canvas id="viewer-canvas"></canvas>
+            
+            <div class="avatar-details" id="avatar-details">
+                <div class="details-title">Avatar Details</div>
+                <div class="details-info">
+                    <!-- Technical details will be populated dynamically -->
+                </div>
+            </div>
+            
+            <div class="viewer-controls" id="viewer-controls">
+                <button class="control-btn active" id="animated-btn">Animated</button>
+                <button class="control-btn" id="tpose-btn">T-Pose</button>
+            </div>
+            
+            <div class="action-buttons" id="action-buttons">
+                <button class="action-btn download-btn" id="download-btn">Download VRM</button>
+                <button class="action-btn buy-btn" id="buy-btn">Buy VRM</button>
+                <button class="action-btn mint-avatar-btn" id="mint-avatar-btn">Mint Avatar</button>
+                <button class="action-btn mint-artwork-btn" id="mint-artwork-btn">Mint Artwork</button>
+                <button class="action-btn view-artwork-btn" id="view-artwork-btn">View 3D Artwork</button>
+            </div>
+            
+            <div class="loading-overlay" id="loading-overlay">
+                <div class="loading-text">Forging... <span id="loading-percentage">0%</span></div>
+                <div class="loading-progress">
+                    <div class="progress-bar" id="progress-bar"></div>
+                </div>
+            </div>
+            
+            <!-- Media View Container -->
+            <div class="media-view" id="media-view">
+                <div class="media-content" id="media-content">
+                    <!-- Media content will be displayed here -->
+                    <div class="media-preview" id="media-preview"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Avatar selector section - simplified structure -->
+        <div class="bottom-section" id="bottom-section">
+            <div class="avatar-selector">
+                <div class="avatar-carousel" id="avatar-carousel">
+                    <!-- Avatar/media items will be generated dynamically -->
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        //=====================================================
+        // CONFIGURABLE PARAMETERS
+        //=====================================================
+        
+        // UI Configuration
+        const CONFIG = {
+            // Thumbnail parameters
+            thumbnails: {
+                size: 60,            // Size of thumbnail in pixels
+                spacing: 30,         // Space between thumbnails (half the width of an item)
+                // maxVisible is calculated dynamically based on screen width
+            },
+            
+            // UI Element positions
+            ui: {
+                detailsBox: {
+                    top: 0,         // Top position (px)
+                    left: 00,        // Left position (px)
+                    width: 250       // Width of details box (px)
+                },
+                controlButtons: {
+                    top: 320,        // Top position (px)
+                    left: 0,        // Left position (px)
+                    width: 250       // Width of control buttons (px)
+                },
+                actionButtons: {
+                    top: 360,        // Top position (px)
+                    left: 0,        // Left position (px)
+                    width: 250       // Width of action buttons (px)
+                }
+            },
+            
+            // Viewer parameters
+            viewer: {
+                top: 90,             // Top position (px)
+                left: 10,            // Left position (px)
+                right: 10,           // Right position (px)
+                bottom: 120,         // Bottom position (px)
+                modelScale: 1.1,     // Scale factor for models
+                camera: {
+                    position: { x: 0, y: 1, z: 3 },
+                    target: { x: 0, y: 0, z: 0 }
+                }
+            },
+            
+            // Media view parameters
+            media: {
+                top: 90,             // Top position (px)
+                left: 10,            // Left position (px)
+                right: 10,           // Right position (px)
+                bottom: 120          // Bottom position (px)
+            }
+        };
+        
+        //=====================================================
+        // END OF CONFIGURABLE PARAMETERS
+        //=====================================================
+        
+        // Global variables
+        let scene, camera, renderer, controls;
+        let clock = new THREE.Clock();
+        let mixer = null;
+        let currentModel = null;
+        let currentArtworkModel = null;
+        let currentVrmModel = null;
+        let isShowingArtwork = false;
+        let isShowingVrm = false;
+        let isTPoseMode = false;
+        let activeAvatar = null;
+        let avatarData = [];
+        let collections = [];
+        let activeCollection = null;
+        let modelAnimations = [];
+        let activeAvatarIndex = 0;
+        let isModelLoading = false; // Flag to prevent multiple model loads
+        let mediaData = [];
+        let activeMediaIndex = 0;
+        let isMediaMode = false; // Flag to track if we're in media mode
+        
+        // HDRI path for environment lighting
+        const hdriPath = 'https://raw.githubusercontent.com/mrdoob/three.js/dev/examples/textures/equirectangular/venice_sunset_1k.hdr';
+        
+        // Initialize the application when DOM is loaded
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log("Document loaded, initializing app...");
+            applyUIConfiguration();
+            initApp();
+        });
+        
+        function applyUIConfiguration() {
+            // Apply position configurations to UI elements
+            
+            // GLB Viewer
+            const viewerContainer = document.getElementById('viewer-container');
+            viewerContainer.style.top = `${CONFIG.viewer.top}px`;
+            viewerContainer.style.left = `${CONFIG.viewer.left}px`;
+            viewerContainer.style.right = `${CONFIG.viewer.right}px`;
+            viewerContainer.style.bottom = `${CONFIG.viewer.bottom}px`;
+            
+            // Details box
+            const avatarDetails = document.getElementById('avatar-details');
+            avatarDetails.style.top = `${CONFIG.ui.detailsBox.top}px`;
+            avatarDetails.style.left = `${CONFIG.ui.detailsBox.left}px`;
+            avatarDetails.style.width = `${CONFIG.ui.detailsBox.width}px`;
+            
+            // Control buttons
+            const viewerControls = document.getElementById('viewer-controls');
+            viewerControls.style.top = `${CONFIG.ui.controlButtons.top}px`;
+            viewerControls.style.left = `${CONFIG.ui.controlButtons.left}px`;
+            viewerControls.style.width = `${CONFIG.ui.controlButtons.width}px`;
+            
+            // Action buttons
+            const actionButtons = document.getElementById('action-buttons');
+            actionButtons.style.top = `${CONFIG.ui.actionButtons.top}px`;
+            actionButtons.style.left = `${CONFIG.ui.actionButtons.left}px`;
+            actionButtons.style.width = `${CONFIG.ui.actionButtons.width}px`;
+            
+            // Media view
+            const mediaView = document.getElementById('media-view');
+            mediaView.style.top = `${CONFIG.media.top}px`;
+            mediaView.style.left = `${CONFIG.media.left}px`;
+            mediaView.style.right = `${CONFIG.media.right}px`;
+            mediaView.style.bottom = `${CONFIG.media.bottom}px`;
+        }
+        
+        function initApp() {
+            // Initialize the 3D scene
+            initScene();
+            
+            // Load avatar data
+            loadAvatarData();
+            
+            // Load media data
+            loadMediaData();
+            
+            // Setup event listeners
+            setupEventListeners();
+        }
+        
+        function initScene() {
+            console.log("Initializing 3D scene...");
+            
+            // Create the scene with transparent background
+            scene = new THREE.Scene();
+            scene.background = null;
+            
+            // Create the camera
+            const canvasContainer = document.querySelector('.viewer-container');
+            const aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
+            camera = new THREE.PerspectiveCamera(45, aspect, 0.01, 1000);
+            camera.position.set(
+                CONFIG.viewer.camera.position.x,
+                CONFIG.viewer.camera.position.y,
+                CONFIG.viewer.camera.position.z
+            );
+            
+            // Create the renderer with transparency
+            renderer = new THREE.WebGLRenderer({ 
+                canvas: document.getElementById('viewer-canvas'),
+                antialias: true,
+                alpha: true,
+                powerPreference: 'high-performance'
+            });
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+            renderer.outputEncoding = THREE.sRGBEncoding;
+            renderer.toneMapping = THREE.ACESFilmicToneMapping;
+            renderer.toneMappingExposure = 1.0;
+            renderer.physicallyCorrectLights = true;
+            
+            // Create orbit controls
+            controls = new THREE.OrbitControls(camera, renderer.domElement);
+            controls.enableDamping = true;
+            controls.dampingFactor = 0.05;
+            controls.enablePan = false; // Disable panning
+            controls.minDistance = 0.5;
+            controls.maxDistance = 10;
+            controls.autoRotate = true;
+            controls.autoRotateSpeed = 1.0;
+            controls.target.set(
+                CONFIG.viewer.camera.target.x, 
+                CONFIG.viewer.camera.target.y, 
+                CONFIG.viewer.camera.target.z
+            );
+            controls.update();
+            
+            // Handle window resize
+            window.addEventListener('resize', onWindowResize);
+            
+            // Setup HDRI environment lighting
+            setupHDRIEnvironment();
+            
+            // Add basic lighting
+            addBasicLighting();
+            
+            // Start animation loop
+            animate();
+            
+            console.log("3D scene initialized");
+        }
+        
+        function setupHDRIEnvironment() {
+            updateLoadingProgress(10, 'Loading environment...');
+            
+            const pmremGenerator = new THREE.PMREMGenerator(renderer);
+            pmremGenerator.compileEquirectangularShader();
+            
+            // Load HDRI environment map
+            new THREE.RGBELoader()
+                .load(hdriPath, function(texture) {
+                    const envMap = pmremGenerator.fromEquirectangular(texture).texture;
+                    
+                    scene.environment = envMap;
+                    
+                    texture.dispose();
+                    pmremGenerator.dispose();
+                    
+                    updateLoadingProgress(20, 'Environment loaded');
+                });
+        }
+        
+        function addBasicLighting() {
+            // Add ambient light
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
+            scene.add(ambientLight);
+            
+            // Add directional light
+            const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+            dirLight.position.set(5, 5, 5);
+            scene.add(dirLight);
+        }
+        
+        function onWindowResize() {
+            const canvasContainer = document.querySelector('.viewer-container');
+            const aspect = canvasContainer.clientWidth / canvasContainer.clientHeight;
+            
+            camera.aspect = aspect;
+            camera.updateProjectionMatrix();
+            
+            renderer.setSize(canvasContainer.clientWidth, canvasContainer.clientHeight);
+            
+            // Redraw the carousel when resizing
+            if (isMediaMode) {
+                updateMediaCarousel();
+            } else {
+                updateAvatarCarousel();
+            }
+        }
+        
+        function animate() {
+            requestAnimationFrame(animate);
+            
+            // Update controls
+            if (controls) controls.update();
+            
+            // Update animation mixer
+            if (mixer) {
+                const delta = clock.getDelta();
+                mixer.update(delta);
+            }
+            
+            // Render the scene
+            if (renderer) renderer.render(scene, camera);
+        }
+        
+        function setupEventListeners() {
+            console.log("Setting up event listeners...");
+            
+            // Media button toggle
+            document.getElementById('media-btn').addEventListener('click', function() {
+                toggleMediaMode();
+            });
+            
+            // View mode toggle buttons
+            document.getElementById('tpose-btn').addEventListener('click', function() {
+                if (isModelLoading || isMediaMode) return; // Prevent button action while loading
+                
+                document.getElementById('animated-btn').classList.remove('active');
+                this.classList.add('active');
+                setTPose(true);
+            });
+            
+            document.getElementById('animated-btn').addEventListener('click', function() {
+                if (isModelLoading || isMediaMode) return; // Prevent button action while loading
+                
+                document.getElementById('tpose-btn').classList.remove('active');
+                this.classList.add('active');
+                setTPose(false);
+            });
+            
+            // Artwork view toggle
+            document.getElementById('view-artwork-btn').addEventListener('click', function() {
+                if (isModelLoading || isMediaMode) return; // Prevent button action while loading
+                toggleArtworkView();
+            });
+            
+            // Action buttons
+            document.getElementById('download-btn').addEventListener('click', function() {
+                if (activeAvatar && activeAvatar.downloadLink && activeAvatar.downloadLink !== "null") {
+                    window.open(activeAvatar.downloadLink, '_blank');
+                }
+            });
+            
+            document.getElementById('buy-btn').addEventListener('click', function() {
+                if (activeAvatar && activeAvatar.buyLink && activeAvatar.buyLink !== "null") {
+                    window.open(activeAvatar.buyLink, '_blank');
+                }
+            });
+            
+            document.getElementById('mint-avatar-btn').addEventListener('click', function() {
+                if (activeAvatar && activeAvatar.mintAvatarUrl && activeAvatar.mintAvatarUrl !== "null") {
+                    window.open(activeAvatar.mintAvatarUrl, '_blank');
+                }
+            });
+            
+            document.getElementById('mint-artwork-btn').addEventListener('click', function() {
+                if (activeAvatar && activeAvatar.mintArtworkUrl && activeAvatar.mintArtworkUrl !== "null") {
+                    window.open(activeAvatar.mintArtworkUrl, '_blank');
+                }
+            });
+            
+            // Scroll event for thumbnails carousel
+            document.querySelector('.avatar-selector').addEventListener('wheel', function(e) {
+                e.preventDefault();
+                
+                // If a model is currently loading, don't allow more scrolling
+                if (isModelLoading) return;
+                
+                const scrollDirection = e.deltaY > 0 ? 1 : -1;
+                
+                if (isMediaMode) {
+                    changeActiveMedia(scrollDirection);
+                } else {
+                    changeActiveAvatar(scrollDirection);
+                }
+            }, { passive: false });
+            
+            // Arrow key navigation
+            document.addEventListener('keydown', function(e) {
+                // If a model is currently loading, don't allow more navigation
+                if (isModelLoading) return;
+                
+                if (isMediaMode) {
+                    // Media view is active
+                    if (e.key === 'ArrowLeft') {
+                        changeActiveMedia(-1);
+                    } else if (e.key === 'ArrowRight') {
+                        changeActiveMedia(1);
+                    } else if (e.key === 'Escape') {
+                        toggleMediaMode();
+                    }
+                } else {
+                    // Avatar view is active
+                    if (e.key === 'ArrowLeft') {
+                        changeActiveAvatar(-1);
+                    } else if (e.key === 'ArrowRight') {
+                        changeActiveAvatar(1);
+                    }
+                }
+            });
+            
+            // Search functionality
+            document.getElementById('search-input').addEventListener('input', function(e) {
+                const searchTerm = e.target.value;
+                // Check what we're currently viewing
+                if (isMediaMode) {
+                    // Search media
+                    filterMedia(searchTerm);
+                } else {
+                    // Search avatars
+                    filterAvatars(searchTerm);
+                }
+            });
+            
+            // Collection buttons
+            document.addEventListener('click', function(e) {
+                if (e.target.classList.contains('collection-btn')) {
+                    // If media view is showing, hide it and switch back to avatar mode
+                    if (isMediaMode) {
+                        toggleMediaMode();
+                    }
+                }
+            });
+        }
+        
+        function toggleMediaMode() {
+            isMediaMode = !isMediaMode;
+            
+            // Update UI state
+            const mediaBtn = document.getElementById('media-btn');
+            
+            if (isMediaMode) {
+                // Show media mode
+                mediaBtn.classList.add('active');
+                document.getElementById('media-view').style.display = 'block';
+                document.getElementById('avatar-details').style.display = 'none';
+                document.getElementById('action-buttons').style.display = 'none';
+                document.getElementById('viewer-controls').style.display = 'none';
+                document.getElementById('search-input').placeholder = "Search media...";
+                
+                // Remove active state from all collection buttons
+                document.querySelectorAll('.collection-btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // Hide the 3D model by clearing the scene
+                clearScene();
+                
+                // Clear the avatar carousel and populate with media items
+                populateMediaItems();
+                
+                // Select and display the first media item
+                if (mediaData.length > 0) {
+                    activeMediaIndex = 0;
+                    updateMediaCarousel();
+                    displayMediaContent(mediaData[0]);
+                }
+            } else {
+                // Switch back to avatar mode
+                mediaBtn.classList.remove('active');
+                document.getElementById('media-view').style.display = 'none';
+                document.getElementById('avatar-details').style.display = 'block';
+                document.getElementById('action-buttons').style.display = 'block';
+                document.getElementById('viewer-controls').style.display = 'flex';
+                document.getElementById('search-input').placeholder = "Search avatars...";
+                
+                // Clear media content
+                document.getElementById('media-preview').innerHTML = '';
+                
+                // Set the first collection as active
+                if (collections.length > 0) {
+                    activeCollection = collections[0];
+                    document.querySelectorAll('.collection-btn').forEach(btn => {
+                        if (btn.textContent === activeCollection) {
+                            btn.classList.add('active');
+                        }
+                    });
+                }
+                
+                // Restore avatar carousel
+                populateAvatarItems();
+                
+                // Reset the scene and load the first avatar
+                if (avatarData.length > 0) {
+                    const filteredAvatars = avatarData.filter(avatar => 
+                        avatar.collection === activeCollection);
+                    
+                    if (filteredAvatars.length > 0) {
+                        activeAvatarIndex = 0;
+                        updateAvatarCarousel();
+                        loadAndDisplayAvatar(filteredAvatars[0], true);
+                    }
+                }
+            }
+        }
+        
+        function loadMediaData() {
+            console.log("Loading media data...");
+            
+            // Sample media data
+            mediaData = [
+                {
+                    id: 1,
+                    name: "Introduction Video",
+                    type: "video",
+                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                    thumbnailUrl: "https://i.ytimg.com/vi/aqz-KE-bpKQ/maxresdefault.jpg",
+                    description: "Sample video content"
+                },
+                {
+                    id: 2,
+                    name: "Project Image 1",
+                    type: "image",
+                    url: "https://picsum.photos/seed/picsum1/1200/800",
+                    thumbnailUrl: "https://picsum.photos/seed/picsum1/300/200",
+                    description: "Sample image content 1"
+                },
+                {
+                    id: 3,
+                    name: "Project Information",
+                    type: "text",
+                    thumbnailUrl: "https://cdn-icons-png.flaticon.com/512/2911/2911228.png",
+                    content: "<h2>Project Information</h2><p>This is a sample text content for the media viewer.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Maecenas auctor arcu id ex facilisis, vel finibus nunc hendrerit.</p>"
+                },
+                {
+                    id: 4,
+                    name: "Project Video 2",
+                    type: "video",
+                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                    thumbnailUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e4/Elephants_Dream_poster.jpg",
+                    description: "Another sample video"
+                },
+                {
+                    id: 5,
+                    name: "Project Image 2",
+                    type: "image",
+                    url: "https://picsum.photos/seed/picsum2/1200/800",
+                    thumbnailUrl: "https://picsum.photos/seed/picsum2/300/200",
+                    description: "Sample image content 2"
+                },
+                {
+                    id: 6,
+                    name: "Documentation",
+                    type: "text",
+                    thumbnailUrl: "https://cdn-icons-png.flaticon.com/512/2911/2911228.png",
+                    content: "<h2>Documentation</h2><p>This is another text document with detailed information about the project.</p>"
+                },
+                {
+                    id: 7,
+                    name: "Project Image 3",
+                    type: "image",
+                    url: "https://picsum.photos/seed/picsum3/1200/800",
+                    thumbnailUrl: "https://picsum.photos/seed/picsum3/300/200",
+                    description: "Sample image content 3"
+                },
+                {
+                    id: 8,
+                    name: "Project Video 3",
+                    type: "video",
+                    url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                    thumbnailUrl: "https://i.ytimg.com/vi/Dr9C2oswZfA/maxresdefault.jpg",
+                    description: "Yet another sample video"
+                }
+            ];
+        }
+        
+        // Populates media items in the carousel
+        function populateMediaItems() {
+            console.log("Populating media carousel with", mediaData.length, "items");
+            const carouselContainer = document.getElementById('avatar-carousel');
+            carouselContainer.innerHTML = '';
+            
+            mediaData.forEach((media, index) => {
+                const mediaItem = document.createElement('div');
+                mediaItem.className = `media-item ${media.type}`;
+                mediaItem.dataset.id = media.id;
+                mediaItem.dataset.index = index;
+                
+                // Use provided thumbnail or type-based default
+                const thumbnailUrl = media.thumbnailUrl || getDefaultThumbnail(media.type);
+                
+                mediaItem.innerHTML = `
+                    <img src="${thumbnailUrl}" class="media-item-thumbnail" alt="${media.name}">
+                    <div class="media-item-name">${media.name}</div>
+                `;
+                
+                mediaItem.addEventListener('click', () => {
+                    // Don't allow clicking during loading
+                    if (isModelLoading) return;
+                    
+                    console.log("Media item clicked:", media.name);
+                    activeMediaIndex = index;
+                    updateMediaCarousel();
+                    displayMediaContent(media);
+                });
+                
+                carouselContainer.appendChild(mediaItem);
+            });
+            
+            // Position media items in the carousel
+            updateMediaCarousel();
+        }
+        
+        function getDefaultThumbnail(type) {
+            switch (type) {
+                case 'video':
+                    return 'https://cdn-icons-png.flaticon.com/512/711/711245.png';
+                case 'image':
+                    return 'https://cdn-icons-png.flaticon.com/512/1829/1829371.png';
+                case 'text':
+                    return 'https://cdn-icons-png.flaticon.com/512/2911/2911228.png';
+                default:
+                    return 'https://cdn-icons-png.flaticon.com/512/831/831509.png';
+            }
+        }
+        
+        // Change the active media item and update the carousel
+        function changeActiveMedia(direction) {
+            const numMedia = mediaData.length;
+            if (numMedia === 0) return;
+            
+            // Calculate new index with wraparound
+            activeMediaIndex = (activeMediaIndex + direction + numMedia) % numMedia;
+            
+            // Update carousel positions
+            updateMediaCarousel();
+            
+            // Display the selected media
+            displayMediaContent(mediaData[activeMediaIndex]);
+        }
+        
+        // Update media carousel positions - correctly centered
+        function updateMediaCarousel() {
+            const mediaItems = document.querySelectorAll('.media-item');
+            const numItems = mediaItems.length;
+            
+            if (numItems === 0) return;
+            
+            // Clear any existing positioning
+            mediaItems.forEach(item => {
+                item.classList.remove('active');
+                item.style.display = 'none';
+            });
+            
+            // Get the exact screen width for perfect centering
+            const windowWidth = window.innerWidth;
+            const itemWidth = CONFIG.thumbnails.size;
+            const spacing = CONFIG.thumbnails.spacing;
+            
+            // Calculate visible items
+            const itemsPerSide = Math.floor(CONFIG.thumbnails.maxVisible / 2);
+            
+            // The center point of the screen
+            const centerX = windowWidth / 2;
+            
+            // For each item, calculate its position relative to center
+            for (let i = 0; i < numItems; i++) {
+                // Calculate the item's position in the sequence relative to active item
+                let relativePos = ((i - activeMediaIndex) + numItems) % numItems;
+                
+                // Adjust for shortest path around the circle
+                if (relativePos > numItems / 2) {
+                    relativePos -= numItems;
+                }
+                
+                // Only show items within the visible range
+                if (Math.abs(relativePos) <= itemsPerSide) {
+                    const item = mediaItems[i];
+                    item.style.display = '';
+                    
+                    // Calculate absolute position - centered for active item
+                    const xPos = centerX - (itemWidth / 2) + (relativePos * (itemWidth + spacing));
+                    
+                    // Position the item
+                    item.style.left = `${xPos}px`;
+                    item.style.top = '0px';
+                    
+                    // Set opacity based on distance from center
+                    const opacity = relativePos === 0 ? 1 : 0.7;
+                    item.style.opacity = opacity;
+                    
+                    // Set z-index for proper stacking
+                    item.style.zIndex = 100 - Math.abs(relativePos);
+                    
+                    // Highlight active item
+                    if (i === activeMediaIndex) {
+                        item.classList.add('active');
+                    }
+                }
+            }
+        }
+        
+        function displayMediaContent(media) {
+            if (!media) return;
+            
+            const mediaPreview = document.getElementById('media-preview');
+            mediaPreview.innerHTML = '';
+            
+            switch (media.type) {
+                case 'video':
+                    const videoContainer = document.createElement('div');
+                    videoContainer.className = 'media-video-container';
+                    
+                    const video = document.createElement('video');
+                    video.className = 'media-video';
+                    video.src = media.url;
+                    video.controls = true;
+                    video.autoplay = false;
+                    videoContainer.appendChild(video);
+                    
+                    mediaPreview.appendChild(videoContainer);
+                    break;
+                    
+                case 'image':
+                    const img = document.createElement('img');
+                    img.className = 'media-image';
+                    img.src = media.url;
+                    img.alt = media.name;
+                    mediaPreview.appendChild(img);
+                    break;
+                    
+                case 'text':
+                    const textDiv = document.createElement('div');
+                    textDiv.className = 'media-text';
+                    textDiv.innerHTML = media.content;
+                    mediaPreview.appendChild(textDiv);
+                    break;
+                    
+                default:
+                    console.error('Unknown media type:', media.type);
+            }
+        }
+        
+        function filterMedia(searchTerm) {
+            if (!searchTerm) {
+                // If search is empty, show all media
+                populateMediaItems();
+                if (mediaData.length > 0) {
+                    activeMediaIndex = 0;
+                    updateMediaCarousel();
+                    displayMediaContent(mediaData[0]);
+                }
+                return;
+            }
+            
+            // Convert search term to lowercase for case-insensitive search
+            searchTerm = searchTerm.toLowerCase().trim();
+            
+            // Filter media items
+            const filteredMedia = mediaData.filter(media => 
+                media.name.toLowerCase().includes(searchTerm) || 
+                (media.description && media.description.toLowerCase().includes(searchTerm))
+            );
+            
+            // Show filtered results if any found
+            if (filteredMedia.length > 0) {
+                // Store original media array
+                const originalMedia = [...mediaData];
+                
+                // Temporarily replace the media data with filtered results
+                mediaData = filteredMedia;
+                
+                // Repopulate the carousel with filtered items
+                populateMediaItems();
+                
+                // Display the first filtered item
+                activeMediaIndex = 0;
+                updateMediaCarousel();
+                displayMediaContent(filteredMedia[0]);
+                
+                // Restore the original media data
+                mediaData = originalMedia;
+            } else {
+                // No results found - show empty carousel
+                document.getElementById('avatar-carousel').innerHTML = '';
+                document.getElementById('media-preview').innerHTML = '<div class="media-text">No media found matching your search.</div>';
+            }
+        }
+        
+        function loadAvatarData() {
+            console.log("Loading avatar data...");
+            
+            // Create base avatars
+            const baseAvatars = [
+                {
+                    id: 1,
+                    name: "Davicni",
+                    collection: "C2W2",
+                    thumbnailUrl: "https://static.wixstatic.com/media/54a996_47b0c01fb7404427ade7405c73862623~mv2.jpg",
+                    modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/davicni-web-opt-v1.glb",
+                    vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/vrm/DAVICNI-C2W2-V2-5.vrm",
+                    artworkUrl: null,
+                    downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/DAVICNI-C2W2-V2-5.vrm",
+                    buyLink: null,
+                    mintAvatarUrl: "https://example.com/mint/davicni",
+                    mintArtworkUrl: null,
+                    fitNo: "001",
+                    runwayPart: "A",
+                    license: "CC-BY",
+                    author: "C2W2",
+                    format: "VRM",
+                    polygons: 12000,
+                    materials: 3,
+                    vrmVersion: "1.0",
+                    description: "Davicni avatar from the C2W2 collection.",
+                    additionalLink1: "https://example.com/davicni/link1",
+                    additionalLink2: null
+                },
+                {
+                    id: 2,
+                    name: "Mutant Bacon",
+                    collection: "C2W2",
+                    thumbnailUrl: "https://static.wixstatic.com/media/54a996_47b0c01fb7404427ade7405c73862623~mv2.jpg",
+                    modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/mutantbacon-web-opt-v2.glb",
+                    vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/MutantBacon_C2W2_28.vrm",
+                    artworkUrl: null,
+                    downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/MutantBacon_C2W2_28.vrm",
+                    buyLink: null,
+                    mintAvatarUrl: "https://example.com/mint/mutantbacon",
+                    mintArtworkUrl: null,
+                    fitNo: "002",
+                    runwayPart: "B",
+                    license: "CC-BY",
+                    author: "C2W2",
+                    format: "VRM",
+                    polygons: 15000,
+                    materials: 4,
+                    vrmVersion: "1.0",
+                    description: "Mutant Bacon avatar from the C2W2 collection.",
+                    additionalLink1: null,
+                    additionalLink2: null
+                }
+            ];
+            
+            // Start with empty array
+            avatarData = [];
+            
+            // Create 8 C2W2 avatars (4 copies of each base avatar)
+            baseAvatars.forEach((baseAvatar, baseIndex) => {
+                for (let i = 0; i < 4; i++) {
+                    const avatarCopy = Object.assign({}, baseAvatar);
+                    avatarCopy.id = baseIndex * 4 + i + 1;
+                    avatarCopy.name = baseAvatar.name + (i > 0 ? ` ${i+1}` : '');
+                    avatarData.push(avatarCopy);
+                }
+            });
+            
+            // Add 10 Metaverse Avatars
+            for (let i = 1; i <= 10; i++) {
+                avatarData.push({
+                    id: i + 8,
+                    name: `Meta Avatar ${i}`,
+                    collection: "Metaverse Avatars",
+                    thumbnailUrl: "https://static.wixstatic.com/media/54a996_47b0c01fb7404427ade7405c73862623~mv2.jpg",
+                    modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/davicni-web-opt-v1.glb", // Reusing models for testing
+                    vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/DAVICNI-C2W2-V2-5.vrm",
+                    artworkUrl: null,
+                    downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/DAVICNI-C2W2-V2-5.vrm",
+                    buyLink: null,
+                    mintAvatarUrl: i % 2 === 0 ? "https://example.com/mint/meta" + i : null,
+                    mintArtworkUrl: null,
+                    fitNo: `${i}00`,
+                    runwayPart: String.fromCharCode(64 + i),
+                    license: "CC-BY",
+                    author: "Meta Studios",
+                    format: "VRM",
+                    polygons: 18000 + i * 100,
+                    materials: i % 3 + 2,
+                    vrmVersion: "1.0",
+                    description: `Metaverse avatar ${i} from the Metaverse Avatars collection.`,
+                    additionalLink1: null,
+                    additionalLink2: null
+                });
+            }
+            
+            // Add 10 Fantasy Heroes
+            for (let i = 1; i <= 10; i++) {
+                avatarData.push({
+                    id: i + 18,
+                    name: `Fantasy Hero ${i}`,
+                    collection: "Fantasy Heroes",
+                    thumbnailUrl: "https://static.wixstatic.com/media/54a996_47b0c01fb7404427ade7405c73862623~mv2.jpg",
+                    modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/mutantbacon-web-opt-v2.glb", // Reusing models for testing
+                    vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/MutantBacon_C2W2_28.vrm",
+                    artworkUrl: null,
+                    downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/MutantBacon_C2W2_28.vrm",
+                    buyLink: null,
+                    mintAvatarUrl: i % 3 === 0 ? "https://example.com/mint/fantasy" + i : null,
+                    mintArtworkUrl: i % 5 === 0 ? "https://example.com/mint/fantasy-art" + i : null,
+                    fitNo: `${i}00`,
+                    runwayPart: "X",
+                    license: "CC-BY-NC",
+                    author: "Fantasy Creations",
+                    format: "VRM",
+                    polygons: 22000 + i * 100,
+                    materials: i % 4 + 3,
+                    vrmVersion: "1.0",
+                    description: `Fantasy character ${i} from the Fantasy Heroes collection.`,
+                    additionalLink1: i % 7 === 0 ? "https://example.com/fantasy/link1/" + i : null,
+                    additionalLink2: i % 11 === 0 ? "https://example.com/fantasy/link2/" + i : null
+                });
+            }
+            
+            // Extract unique collections
+            collections = [];
+            avatarData.forEach(avatar => {
+                if (!collections.includes(avatar.collection)) {
+                    collections.push(avatar.collection);
+                }
+            });
+            
+            // Set default active collection
+            activeCollection = collections[0];
+            
+            // Populate collection filters
+            populateCollections();
+            
+            // Populate the avatar carousel
+            populateAvatarItems();
+            
+            // Select the first avatar by default
+            if (avatarData.length > 0) {
+                const filteredAvatars = avatarData.filter(avatar => 
+                    avatar.collection === activeCollection);
+                
+                console.log("Loading first avatar by default:", filteredAvatars[0].name);
+                activeAvatarIndex = 0;
+                updateAvatarCarousel();
+                loadAndDisplayAvatar(filteredAvatars[0], true);
+            }
+        }
+        
+        function populateCollections() {
+            console.log("Populating collections:", collections);
+            const collectionsContainer = document.getElementById('collections');
+            collectionsContainer.innerHTML = '';
+            
+            collections.forEach(collection => {
+                const button = document.createElement('button');
+                button.className = 'collection-btn';
+                button.textContent = collection;
+                
+                if (collection === activeCollection) {
+                    button.classList.add('active');
+                }
+                
+                button.addEventListener('click', () => {
+                    // Don't allow switching collections during model loading
+                    if (isModelLoading) return;
+                    
+                    // If we're in media mode, exit it
+                    if (isMediaMode) {
+                        toggleMediaMode();
+                    }
+                    
+                    console.log("Collection button clicked:", collection);
+                    
+                    // Update active collection
+                    activeCollection = collection;
+                    
+                    // Update UI
+                    document.querySelectorAll('.collection-btn').forEach(btn => {
+                        btn.classList.remove('active');
+                    });
+                    button.classList.add('active');
+                    
+                    // Filter avatars by collection and update carousel
+                    filterAvatarsByCollection();
+                });
+                
+                collectionsContainer.appendChild(button);
+            });
+        }
+        
+        function filterAvatarsByCollection() {
+            // Get avatars in the current collection
+            const filteredAvatars = avatarData.filter(avatar => 
+                avatar.collection === activeCollection);
+            
+            // Repopulate carousel with filtered avatars
+            populateAvatarItems(filteredAvatars);
+            
+            // Select the first avatar in the filtered list
+            if (filteredAvatars.length > 0) {
+                activeAvatarIndex = 0;
+                updateAvatarCarousel();
+                loadAndDisplayAvatar(filteredAvatars[0], true);
+            }
+        }
+        
+        function populateAvatarItems(avatarsToShow) {
+            // Use avatars in current collection if not specified
+            if (!avatarsToShow) {
+                avatarsToShow = avatarData.filter(avatar => 
+                    avatar.collection === activeCollection);
+            }
+            
+            console.log("Populating avatar carousel with", avatarsToShow.length, "avatars");
+            const carouselContainer = document.getElementById('avatar-carousel');
+            carouselContainer.innerHTML = '';
+            
+            avatarsToShow.forEach((avatar, index) => {
+                const avatarItem = document.createElement('div');
+                avatarItem.className = 'avatar-item';
+                avatarItem.dataset.id = avatar.id;
+                avatarItem.dataset.index = index;
+                
+                // Use placeholder if thumbnail not available
+                const thumbnailUrl = avatar.thumbnailUrl || 'https://via.placeholder.com/80x80';
+                
+                avatarItem.innerHTML = `
+                    <img src="${thumbnailUrl}" class="avatar-thumbnail" alt="${avatar.name}">
+                    <div class="avatar-name">${avatar.name}</div>
+                `;
+                
+                avatarItem.addEventListener('click', () => {
+                    // Don't allow clicking during model loading
+                    if (isModelLoading) return;
+                    
+                    console.log("Avatar item clicked:", avatar.name);
+                    activeAvatarIndex = index;
+                    updateAvatarCarousel();
+                    loadAndDisplayAvatar(avatar);
+                });
+                
+                carouselContainer.appendChild(avatarItem);
+            });
+            
+            // Position avatars in the carousel
+            updateAvatarCarousel();
+        }
+        
+        function changeActiveAvatar(direction) {
+            // Get current filtered avatars
+            const filteredAvatars = avatarData.filter(avatar => 
+                avatar.collection === activeCollection);
+            
+            const numAvatars = filteredAvatars.length;
+            if (numAvatars === 0) return;
+            
+            // Calculate new index with wraparound
+            activeAvatarIndex = (activeAvatarIndex + direction + numAvatars) % numAvatars;
+            
+            // Update carousel positions
+            updateAvatarCarousel();
+            
+            // Load the selected avatar
+            loadAndDisplayAvatar(filteredAvatars[activeAvatarIndex]);
+        }
+        
+        // Update avatar carousel positions - with precise centering
+        function updateAvatarCarousel() {
+            const avatarItems = document.querySelectorAll('.avatar-item');
+            const numItems = avatarItems.length;
+            
+            if (numItems === 0) return;
+            
+            // Clear any existing positioning
+            avatarItems.forEach(item => {
+                item.classList.remove('active');
+                item.style.display = 'none';
+            });
+            
+            // Get the exact window width for perfect centering
+            const windowWidth = window.innerWidth;
+            const itemWidth = CONFIG.thumbnails.size;
+            const spacing = CONFIG.thumbnails.spacing;
+            const offsetX = spacing * 2; // Offset from edges (2x spacing)
+            
+            // Calculate how many items can fit on screen (based on available width)
+            const availableWidth = windowWidth - (offsetX * 2);
+            const maxItemsVisible = Math.floor(availableWidth / (itemWidth + spacing));
+            
+            // The center point of the screen
+            const centerX = windowWidth / 2;
+            
+            // Calculate the positions for all items
+            for (let i = 0; i < numItems; i++) {
+                // Calculate the relative position from active item
+                let relativePos = ((i - activeAvatarIndex) + numItems) % numItems;
+                
+                // Adjust for shortest path around the circle
+                if (relativePos > numItems / 2) {
+                    relativePos -= numItems;
+                }
+                
+                // Display as many items as will fit on screen
+                if (Math.abs(relativePos) <= Math.floor(maxItemsVisible / 2) + 1) {
+                    const item = avatarItems[i];
+                    item.style.display = '';
+                    
+                    // Calculate absolute position - centered for active item
+                    const xPos = centerX - (itemWidth / 2) + (relativePos * (itemWidth + spacing));
+                    
+                    // Position the item
+                    item.style.left = `${xPos}px`;
+                    item.style.top = '0px';
+                    
+                    // Set opacity based on distance from center
+                    const opacity = relativePos === 0 ? 1 : 0.7;
+                    item.style.opacity = opacity;
+                    
+                    // Set z-index for proper stacking
+                    item.style.zIndex = 100 - Math.abs(relativePos);
+                    
+                    // Highlight active item
+                    if (i === activeAvatarIndex) {
+                        item.classList.add('active');
+                    }
+                }
+            }
+        }
+        
+        function loadAndDisplayAvatar(avatar, isInitialLoad = false) {
+            if (!avatar || isModelLoading) return;
+            
+            // Set loading flag to prevent multiple loads
+            isModelLoading = true;
+            
+            console.log("Loading and displaying avatar:", avatar.name);
+            
+            // Set the active avatar
+            activeAvatar = avatar;
+            
+            // Update avatar details panel
+            updateAvatarDetails(avatar);
+            
+            // Update action buttons visibility
+            updateActionButtons(avatar);
+            
+            // Load the model based on current mode
+            if (isTPoseMode) {
+                loadVrmForDisplay(avatar.vrmUrl, avatar.id);
+            } else {
+                loadModelForDisplay(avatar.modelUrl, avatar.id);
+            }
+        }
+        
+        function updateAvatarDetails(avatar) {
+            console.log("Updating avatar details for:", avatar.name);
+            const detailsTitle = document.querySelector('.details-title');
+            const detailsInfo = document.querySelector('.details-info');
+            
+            detailsTitle.textContent = avatar.name;
+            
+            let detailsHTML = '';
+            
+            // Technical details
+            detailsHTML += '<div class="details-section">';
+            detailsHTML += '<div class="details-row"><div class="details-label">Format:</div><div class="details-value">' + avatar.format + '</div></div>';
+            detailsHTML += '<div class="details-row"><div class="details-label">Polygons:</div><div class="details-value">' + avatar.polygons.toLocaleString() + '</div></div>';
+            detailsHTML += '<div class="details-row"><div class="details-label">Materials:</div><div class="details-value">' + avatar.materials + '</div></div>';
+            
+            // Add Fit No. and Runway Part if they exist
+            if (avatar.fitNo && avatar.fitNo !== "null") {
+                detailsHTML += '<div class="details-row"><div class="details-label">Fit No:</div><div class="details-value">' + avatar.fitNo + '</div></div>';
+            }
+            
+            if (avatar.runwayPart && avatar.runwayPart !== "null") {
+                detailsHTML += '<div class="details-row"><div class="details-label">Runway Part:</div><div class="details-value">' + avatar.runwayPart + '</div></div>';
+            }
+            
+            detailsHTML += '</div>';
+            
+            // License info
+            detailsHTML += '<div class="details-section">';
+            detailsHTML += '<div class="details-row"><div class="details-label">License:</div><div class="details-value">' + avatar.license + '</div></div>';
+            detailsHTML += '<div class="details-row"><div class="details-label">Project:</div><div class="details-value">' + avatar.collection + '</div></div>';
+            detailsHTML += '</div>';
+            
+            // VRM information
+            detailsHTML += '<div class="details-section">';
+            detailsHTML += '<div class="details-row"><div class="details-label">VRM Version:</div><div class="details-value">' + avatar.vrmVersion + '</div></div>';
+            detailsHTML += '</div>';
+            
+            // Additional links if available
+            if (avatar.additionalLink1 && avatar.additionalLink1 !== "null") {
+                detailsHTML += '<div class="details-section">';
+                detailsHTML += '<div class="details-row"><div class="details-label">Link 1:</div><div class="details-value"><a href="' + avatar.additionalLink1 + '" target="_blank">View</a></div></div>';
+                detailsHTML += '</div>';
+            }
+            
+            if (avatar.additionalLink2 && avatar.additionalLink2 !== "null") {
+                detailsHTML += '<div class="details-section">';
+                detailsHTML += '<div class="details-row"><div class="details-label">Link 2:</div><div class="details-value"><a href="' + avatar.additionalLink2 + '" target="_blank">View</a></div></div>';
+                detailsHTML += '</div>';
+            }
+            
+            // Description if available
+            if (avatar.description && avatar.description !== "null") {
+                detailsHTML += '<div class="details-section">';
+                detailsHTML += '<div class="details-row"><div class="details-label">Note:</div><div class="details-value">' + avatar.description + '</div></div>';
+                detailsHTML += '</div>';
+            }
+            
+            detailsInfo.innerHTML = detailsHTML;
+        }
+        
+        function updateActionButtons(avatar) {
+            console.log("Updating action buttons for:", avatar.name);
+            const downloadBtn = document.getElementById('download-btn');
+            const buyBtn = document.getElementById('buy-btn');
+            const mintAvatarBtn = document.getElementById('mint-avatar-btn');
+            const mintArtworkBtn = document.getElementById('mint-artwork-btn');
+            const viewArtworkBtn = document.getElementById('view-artwork-btn');
+            
+            // Show/hide download button
+            if (avatar.downloadLink && avatar.downloadLink !== "null") {
+                downloadBtn.style.display = 'block';
+            } else {
+                downloadBtn.style.display = 'none';
+            }
+            
+            // Show/hide buy button
+            if (avatar.buyLink && avatar.buyLink !== "null") {
+                buyBtn.style.display = 'block';
+            } else {
+                buyBtn.style.display = 'none';
+            }
+            
+            // Show/hide mint avatar button
+            if (avatar.mintAvatarUrl && avatar.mintAvatarUrl !== "null") {
+                mintAvatarBtn.style.display = 'block';
+            } else {
+                mintAvatarBtn.style.display = 'none';
+            }
+            
+            // Show/hide mint artwork button
+            if (avatar.mintArtworkUrl && avatar.mintArtworkUrl !== "null") {
+                mintArtworkBtn.style.display = 'block';
+            } else {
+                mintArtworkBtn.style.display = 'none';
+            }
+            
+            // Show/hide artwork button
+            if (avatar.artworkUrl && avatar.artworkUrl !== "null") {
+                viewArtworkBtn.style.display = 'block';
+                viewArtworkBtn.textContent = isShowingArtwork ? 'View Avatar' : 'View 3D Artwork';
+            } else {
+                viewArtworkBtn.style.display = 'none';
+            }
+        }
+        
+        function loadModelForDisplay(modelUrl, avatarId) {
+            if (!modelUrl) {
+                isModelLoading = false;
+                return;
+            }
+            
+            // Show loading overlay
+            updateLoadingProgress(0, 'Loading model...');
+            
+            // Clear the scene first
+            clearScene();
+            
+            // Reset animation variables
+            mixer = null;
+            isShowingVrm = false;
+            
+            // Create GLTFLoader with compression support
+            const gltfLoader = new THREE.GLTFLoader();
+            
+            // Add Draco compression support
+            const dracoLoader = new THREE.DRACOLoader();
+            dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+            gltfLoader.setDRACOLoader(dracoLoader);
+            
+            // Load the model
+            console.log("Loading GLB model:", modelUrl);
+            gltfLoader.load(
+                modelUrl,
+                function(gltf) {
+                    // Handle successful load
+                    console.log("Model loaded successfully");
+                    console.log("Animations found:", gltf.animations.length);
+                    
+                    currentModel = gltf.scene;
+                    currentModel.userData.avatarId = avatarId;
+                    modelAnimations = gltf.animations || [];
+                    
+                    // Center and scale the model appropriately
+                    centerAndScaleModel(currentModel);
+                    
+                    // Setup animations
+                    setupAnimations(modelAnimations);
+                    
+                    // Add model to scene
+                    scene.add(currentModel);
+                    
+                    // Reset camera position
+                    resetCameraPosition();
+                    
+                    updateLoadingProgress(100, 'Complete!');
+                    
+                    // Reset loading flag when model is fully loaded
+                    setTimeout(() => {
+                        isModelLoading = false;
+                    }, 500);
+                },
+                // Progress callback
+                function(xhr) {
+                    if (xhr.lengthComputable) {
+                        const percentComplete = (xhr.loaded / xhr.total) * 100;
+                        updateLoadingProgress(percentComplete, 'Loading model...');
+                    }
+                },
+                // Error callback
+                function(error) {
+                    console.error('Error loading model:', error);
+                    updateLoadingProgress(100, 'Error loading model');
+                    isModelLoading = false;
+                }
+            );
+        }
+        
+        function loadVrmForDisplay(vrmUrl, avatarId) {
+            if (!vrmUrl) {
+                isModelLoading = false;
+                return;
+            }
+            
+            // Show loading overlay
+            updateLoadingProgress(0, 'Loading VRM model...');
+            
+            // Clear the scene first
+            clearScene();
+            
+            // Reset flags
+            isShowingVrm = true;
+            mixer = null;
+            
+            // Create GLTFLoader with compression support
+            const gltfLoader = new THREE.GLTFLoader();
+            const dracoLoader = new THREE.DRACOLoader();
+            dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+            gltfLoader.setDRACOLoader(dracoLoader);
+            
+            // Load the VRM model
+            console.log("Loading VRM model:", vrmUrl);
+            gltfLoader.load(
+                vrmUrl,
+                function(gltf) {
+                    // Handle successful VRM load
+                    currentVrmModel = gltf.scene;
+                    currentVrmModel.userData.avatarId = avatarId;
+                    
+                    // Center and scale the model
+                    centerAndScaleModel(currentVrmModel);
+                    
+                    // Add to scene
+                    scene.add(currentVrmModel);
+                    
+                    // Reset camera position
+                    resetCameraPosition();
+                    
+                    updateLoadingProgress(100, 'VRM loaded');
+                    
+                    // Reset loading flag when model is fully loaded
+                    setTimeout(() => {
+                        isModelLoading = false;
+                    }, 500);
+                },
+                // Progress callback
+                function(xhr) {
+                    if (xhr.lengthComputable) {
+                        const percentComplete = (xhr.loaded / xhr.total) * 100;
+                        updateLoadingProgress(percentComplete, 'Loading VRM model...');
+                    }
+                },
+                // Error callback
+                function(error) {
+                    console.error('Error loading VRM:', error);
+                    updateLoadingProgress(100, 'Error loading VRM model');
+                    isModelLoading = false;
+                }
+            );
+        }
+        
+        function clearScene() {
+            // Remove current models from scene
+            if (currentModel) {
+                disposeObject(currentModel);
+                scene.remove(currentModel);
+                currentModel = null;
+            }
+            
+            if (currentVrmModel) {
+                disposeObject(currentVrmModel);
+                scene.remove(currentVrmModel);
+                currentVrmModel = null;
+            }
+            
+            if (currentArtworkModel) {
+                disposeObject(currentArtworkModel);
+                scene.remove(currentArtworkModel);
+                currentArtworkModel = null;
+            }
+            
+            // Dispose of any existing mixer
+            if (mixer) {
+                mixer.stopAllAction();
+                mixer.uncacheRoot(mixer.getRoot());
+                mixer = null;
+            }
+        }
+        
+        // Properly dispose of all Three.js objects to prevent memory leaks
+        function disposeObject(obj) {
+            if (!obj) return;
+            
+            // Dispose of geometries, materials, textures
+            if (obj.geometry) {
+                obj.geometry.dispose();
+            }
+            
+            if (obj.material) {
+                if (Array.isArray(obj.material)) {
+                    obj.material.forEach(material => disposeMaterial(material));
+                } else {
+                    disposeMaterial(obj.material);
+                }
+            }
+            
+            // Recursively dispose of children
+            if (obj.children && obj.children.length > 0) {
+                for (let i = obj.children.length - 1; i >= 0; i--) {
+                    disposeObject(obj.children[i]);
+                }
+            }
+        }
+        
+        function disposeMaterial(material) {
+            if (!material) return;
+            
+            // Dispose of maps and textures
+            for (const prop in material) {
+                if (material[prop] && typeof material[prop].dispose === 'function') {
+                    material[prop].dispose();
+                }
+            }
+            material.dispose();
+        }
+        
+        function centerAndScaleModel(model) {
+            if (!model) return;
+            
+            // Create a bounding box
+            const bbox = new THREE.Box3().setFromObject(model);
+            const size = bbox.getSize(new THREE.Vector3());
+            const center = bbox.getCenter(new THREE.Vector3());
+            
+            console.log("Model dimensions:", 
+                        "Width:", size.x.toFixed(2),
+                        "Height:", size.y.toFixed(2),
+                        "Depth:", size.z.toFixed(2));
+            
+            // Calculate scale to normalize height using the configured scale factor
+            const maxDimension = Math.max(size.x, size.y, size.z);
+            const scale = CONFIG.viewer.modelScale / maxDimension;
+            
+            model.scale.set(scale, scale, scale);
+            
+            // Position model according to configured position offsets
+            model.position.x = -center.x * scale;
+            model.position.y = -center.y * scale;
+            model.position.z = -center.z * scale;
+            
+            return { size: size, center: center, scale: scale };
+        }
+        
+        function resetCameraPosition() {
+            // Fix for model disappearing on zoom
+            camera.near = 0.01;
+            camera.far = 1000;
+            camera.updateProjectionMatrix();
+            
+            // Reset camera to configured position
+            camera.position.set(
+                CONFIG.viewer.camera.position.x,
+                CONFIG.viewer.camera.position.y,
+                CONFIG.viewer.camera.position.z
+            );
+            camera.lookAt(
+                CONFIG.viewer.camera.target.x,
+                CONFIG.viewer.camera.target.y,
+                CONFIG.viewer.camera.target.z
+            );
+            
+            if (controls) {
+                controls.target.set(
+                    CONFIG.viewer.camera.target.x,
+                    CONFIG.viewer.camera.target.y,
+                    CONFIG.viewer.camera.target.z
+                );
+                controls.minDistance = 0.5; // Allow closer zoom
+                controls.maxDistance = 10;  // Allow further zoom out
+                controls.update();
+            }
+        }
+        
+        function setupAnimations(animations) {
+            if (!animations || animations.length === 0 || !currentModel) {
+                console.log('No animations available');
+                return;
+            }
+            
+            // Create animation mixer
+            mixer = new THREE.AnimationMixer(currentModel);
+            
+            // Reset the clock
+            clock.start();
+            
+            console.log(`Found ${animations.length} animations`);
+            
+            // Find the default animation (idle or first animation)
+            let defaultAnimation = animations.find(anim => 
+                anim.name.toLowerCase().includes('idle') || 
+                anim.name.toLowerCase().includes('loop')
+            );
+            
+            if (!defaultAnimation && animations.length > 0) {
+                defaultAnimation = animations[0];
+            }
+            
+            console.log("Using default animation:", defaultAnimation ? defaultAnimation.name : "none");
+            
+            // Play all animations
+            animations.forEach(clip => {
+                const action = mixer.clipAction(clip);
+                action.setLoop(THREE.LoopRepeat);
+                action.play();
+                console.log(`Playing animation: ${clip.name}`);
+            });
+        }
+        
+        function toggleArtworkView() {
+            if (!activeAvatar.artworkUrl || activeAvatar.artworkUrl === "null" || isModelLoading) return;
+            
+            isShowingArtwork = !isShowingArtwork;
+            isModelLoading = true;
+            
+            if (isShowingArtwork) {
+                // Show artwork model
+                clearScene();
+                
+                // Load the artwork model
+                const gltfLoader = new THREE.GLTFLoader();
+                const dracoLoader = new THREE.DRACOLoader();
+                dracoLoader.setDecoderPath('https://www.gstatic.com/draco/v1/decoders/');
+                gltfLoader.setDRACOLoader(dracoLoader);
+                
+                updateLoadingProgress(0, 'Loading artwork...');
+                
+                gltfLoader.load(
+                    activeAvatar.artworkUrl,
+                    function(gltf) {
+                        currentArtworkModel = gltf.scene;
+                        currentArtworkModel.userData.avatarId = activeAvatar.id;
+                        
+                        centerAndScaleModel(currentArtworkModel);
+                        scene.add(currentArtworkModel);
+                        
+                        updateLoadingProgress(100, 'Complete!');
+                        
+                        // Reset loading flag when model is fully loaded
+                        setTimeout(() => {
+                            isModelLoading = false;
+                        }, 500);
+                    },
+                    function(xhr) {
+                        if (xhr.lengthComputable) {
+                            const percentComplete = (xhr.loaded / xhr.total) * 100;
+                            updateLoadingProgress(percentComplete, 'Loading artwork...');
+                        }
+                    },
+                    function(error) {
+                        console.error('Error loading artwork:', error);
+                        updateLoadingProgress(100, 'Error loading artwork');
+                        isModelLoading = false;
+                    }
+                );
+            } else {
+                // Switch back to avatar model
+                clearScene();
+                
+                if (isTPoseMode) {
+                    // Show VRM model
+                    loadVrmForDisplay(activeAvatar.vrmUrl, activeAvatar.id);
+                } else {
+                    // Show animated GLB model
+                    loadModelForDisplay(activeAvatar.modelUrl, activeAvatar.id);
+                }
+            }
+            
+            // Update button text
+            const button = document.getElementById('view-artwork-btn');
+            if (button) {
+                button.textContent = isShowingArtwork ? 'View Avatar' : 'View 3D Artwork';
+            }
+        }
+        
+        function setTPose(enabled) {
+            if (isModelLoading) return;
+            isTPoseMode = enabled;
+            
+            if (isShowingArtwork) {
+                // Don't change the model if showing artwork
+                return;
+            }
+            
+            // Set loading flag to prevent multiple actions
+            isModelLoading = true;
+            
+            clearScene();
+            
+            if (enabled) {
+                // Show VRM model
+                loadVrmForDisplay(activeAvatar.vrmUrl, activeAvatar.id);
+            } else {
+                // Show animated GLB model
+                loadModelForDisplay(activeAvatar.modelUrl, activeAvatar.id);
+            }
+        }
+        
+        function filterAvatars(searchTerm) {
+            // Don't allow filtering during model loading
+            if (isModelLoading) return;
+            
+            searchTerm = searchTerm.toLowerCase().trim();
+            
+            // If empty, show collection-based filter
+            if (!searchTerm) {
+                filterAvatarsByCollection();
+                return;
+            }
+            
+            // Filter based on search term and current collection, including more fields
+            const filteredAvatars = avatarData.filter(avatar => 
+                avatar.collection === activeCollection && (
+                    // Search in multiple fields
+                    avatar.name.toLowerCase().includes(searchTerm) || 
+                    avatar.collection.toLowerCase().includes(searchTerm) ||
+                    (avatar.fitNo && avatar.fitNo.toLowerCase().includes(searchTerm)) ||
+                    (avatar.runwayPart && avatar.runwayPart.toLowerCase().includes(searchTerm)) ||
+                    (avatar.license && avatar.license.toLowerCase().includes(searchTerm)) ||
+                    (avatar.description && avatar.description.toLowerCase().includes(searchTerm))
+                )
+            );
+            
+            // Repopulate carousel with filtered avatars
+            populateAvatarItems(filteredAvatars);
+            
+            // Select the first matching avatar
+            if (filteredAvatars.length > 0) {
+                activeAvatarIndex = 0;
+                updateAvatarCarousel();
+                loadAndDisplayAvatar(filteredAvatars[0]);
+            }
+        }
+        
+        function updateLoadingProgress(percent, message = 'Forging...') {
+            const progressBar = document.getElementById('progress-bar');
+            const loadingPercentage = document.getElementById('loading-percentage');
+            const loadingOverlay = document.getElementById('loading-overlay');
+            
+            if (progressBar && loadingPercentage) {
+                progressBar.style.width = `${percent}%`;
+                loadingPercentage.textContent = `${Math.round(percent)}%`;
+                
+                if (percent >= 100) {
+                    setTimeout(() => {
+                        loadingOverlay.style.display = 'none';
+                    }, 500);
+                } else {
+                    loadingOverlay.style.display = 'flex';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
