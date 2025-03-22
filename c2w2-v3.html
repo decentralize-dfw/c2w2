@@ -1383,7 +1383,7 @@
                 thumbnailUrl: "https://github.com/decentralize-dfw/c2w2-thumbnail/blob/main/frued.png?raw=true",
                 modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/davicni-web-opt-v1.glb",
                 vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/DAVICNI-C2W2-V2-5.vrm",
-                artworkUrl: null,
+                artworkUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/COZOM-900.glb",
                 downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/DAVICNI-C2W2-V2-5.vrm",
                 buyLink: null,
                 mintAvatarUrl: null,
@@ -1396,12 +1396,12 @@
             },
             {
                 id: 2,
-                name: "Davicni 2",
+                name: "Davicni 2",   //BACONSCENE-900.glb
                 collection: "Virtual Fashion",
                 thumbnailUrl: "https://static.wixstatic.com/media/54a996_47b0c01fb7404427ade7405c73862623~mv2.jpg",
                 modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/davicni-web-opt-v1.glb",
                 vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/DAVICNI-C2W2-V2-5.vrm",
-                artworkUrl: null,
+                artworkUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/BACONSCENE-900.glb",
                 downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/DAVICNI-C2W2-V2-5.vrm",
                 buyLink: null,
                 mintAvatarUrl: "https://example.com/mint/davicni2",
@@ -1693,35 +1693,38 @@
         }
         
         function loadAndDisplayAvatar(avatar, isInitialLoad = false) {
-            if (!avatar || isModelLoading) return;
-            
-            // Set loading flag to prevent multiple loads
-            isModelLoading = true;
-            
-            console.log("Loading and displaying avatar:", avatar.name);
-            
-            // Always show loading overlay
-            updateLoadingProgress(0, 'Forging...');
-            
-            // Clear the scene first
-            clearScene();
-            
-            // Set the active avatar
-            activeAvatar = avatar;
-            
-            // Update avatar details panel
-            updateAvatarDetails(avatar);
-            
-            // Update action buttons visibility
-            updateActionButtons(avatar);
-            
-            // Load the model based on current mode
-            if (isTPoseMode) {
-                loadVrmForDisplay(avatar.vrmUrl, avatar.id);
-            } else {
-                loadModelForDisplay(avatar.modelUrl, avatar.id);
-            }
-        }
+    if (!avatar || isModelLoading) return;
+    
+    // Set loading flag to prevent multiple loads
+    isModelLoading = true;
+    
+    console.log("Loading and displaying avatar:", avatar.name);
+    
+    // Always show loading overlay
+    updateLoadingProgress(0, 'Forging...');
+    
+    // Clear the scene first
+    clearScene();
+    
+    // Reset artwork view flag when switching avatars
+    isShowingArtwork = false;
+    
+    // Set the active avatar
+    activeAvatar = avatar;
+    
+    // Update avatar details panel
+    updateAvatarDetails(avatar);
+    
+    // Update action buttons visibility
+    updateActionButtons(avatar);
+    
+    // Load the model based on current mode
+    if (isTPoseMode) {
+        loadVrmForDisplay(avatar.vrmUrl, avatar.id);
+    } else {
+        loadModelForDisplay(avatar.modelUrl, avatar.id);
+    }
+}
         
         function updateAvatarDetails(avatar) {
             console.log("Updating avatar details for:", avatar.name);
