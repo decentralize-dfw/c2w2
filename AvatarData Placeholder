@@ -1,4 +1,4 @@
-avatarData = [// C2W2 Collection - 8 items (4 variants of each base avatar)
+// C2W2 Collection - 8 items (4 variants of each base avatar)
             {
                 id: 1,
                 name: "Davicni",
@@ -842,4 +842,4 @@ avatarData = [// C2W2 Collection - 8 items (4 variants of each base avatar)
                 additionalLink1: null,
                 additionalLink2: "https://example.com/fantasy/link2/10"
             }
-            ]
+          
