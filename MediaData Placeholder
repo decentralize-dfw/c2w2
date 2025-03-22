@@ -1,0 +1,62 @@
+mediaData = [{
+                id: 1,
+                name: "Introduction Video",
+                type: "video",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4",
+                thumbnailUrl: "https://i.ytimg.com/vi/aqz-KE-bpKQ/maxresdefault.jpg",
+                description: "Sample video content"
+            },
+            {
+                id: 2,
+                name: "Project Image 1",
+                type: "image",
+                url: "https://picsum.photos/seed/picsum1/1200/800",
+                thumbnailUrl: "https://picsum.photos/seed/picsum1/300/200",
+                description: "Sample image content 1"
+            },
+            {
+                id: 3,
+                name: "Project Information",
+                type: "text",
+                thumbnailUrl: "https://cdn-icons-png.flaticon.com/512/2911/2911228.png",
+                content: "<h2>Project Information</h2><p>This is a sample text content for the media viewer.</p><p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla facilisi. Maecenas auctor arcu id ex facilisis, vel finibus nunc hendrerit.</p>"
+            },
+            {
+                id: 4,
+                name: "Project Video 2",
+                type: "video",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4",
+                thumbnailUrl: "https://upload.wikimedia.org/wikipedia/commons/e/e4/Elephants_Dream_poster.jpg",
+                description: "Another sample video"
+            },
+            {
+                id: 5,
+                name: "Project Image 2",
+                type: "image",
+                url: "https://picsum.photos/seed/picsum2/1200/800",
+                thumbnailUrl: "https://picsum.photos/seed/picsum2/300/200",
+                description: "Sample image content 2"
+            },
+            {
+                id: 6,
+                name: "Documentation",
+                type: "text",
+                thumbnailUrl: "https://cdn-icons-png.flaticon.com/512/2911/2911228.png",
+                content: "<h2>Documentation</h2><p>This is another text document with detailed information about the project.</p>"
+            },
+            {
+                id: 7,
+                name: "Project Image 3",
+                type: "image",
+                url: "https://picsum.photos/seed/picsum3/1200/800",
+                thumbnailUrl: "https://picsum.photos/seed/picsum3/300/200",
+                description: "Sample image content 3"
+            },
+            {
+                id: 8,
+                name: "Project Video 3",
+                type: "video",
+                url: "https://commondatastorage.googleapis.com/gtv-videos-bucket/sample/ForBiggerBlazes.mp4",
+                thumbnailUrl: "https://i.ytimg.com/vi/Dr9C2oswZfA/maxresdefault.jpg",
+                description: "Yet another sample video"
+            }];
