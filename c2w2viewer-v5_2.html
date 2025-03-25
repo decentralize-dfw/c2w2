@@ -72,7 +72,7 @@
             border-radius: 4px;
             background-color: rgba(255, 255, 255, 0.7);
             cursor: pointer;
-            font-size: 13px;
+            font-size: 11px;
             transition: all 0.2s;
             color: #000;
             font-weight: normal;
@@ -109,30 +109,32 @@
             background-color: rgba(255, 255, 255, 0.7);
             font-size: 14px;
             width: 100%;
-            max-width: 300px;
-            font-family: "Lucida Console", monospace;
+            max-width: 250px;
+            font-family: "Times New Roman", monospace;
         }
         
         /* Viewer container */
         .viewer-container {
-            position: absolute;
-            z-index: 1;
-            overflow: visible;
-        }
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 1;
+    overflow: visible;
+}
         
         #viewer-canvas {
-            width: 100%;
-            height: 100%;
-        }
+    width: 100%;
+    height: 100%;
+}
         
         /* Viewer controls */
         .viewer-controls {
-            position: absolute;
-            display: flex;
-            z-index: 5;
-            width: 250px;
-            gap: 15px; /* Gap for spacing between buttons */
-        }
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}
         
         .control-btn {
             padding: 8px 15px;
@@ -141,7 +143,7 @@
             background-color: rgba(240, 240, 240, 0);
             color: #000;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 11px;
             transition: all 0.2s;
             width: 50%;
         }
@@ -157,30 +159,34 @@
         
         /* Avatar details panel */
         .avatar-details {
-            position: absolute;
-            border-radius: 4px;
-            padding: 15px;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-            max-height: 500px;
-            overflow-y: auto;
-            z-index: 4;
-            color: #000;
-            background-color: rgba(255, 255, 255, 0.9);
-            width: 250px;
-        }
+    position: absolute;
+    border-radius: 4px;
+    padding: 15px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-height: 80vh; /* Adjust based on viewport height */
+    overflow-y: auto;
+    z-index: 4;
+    color: #000;
+    background-color: rgba(255, 255, 255, 0.9);
+    width: 250px;
+    display: flex;
+    flex-direction: column;
+}
+
+
         
         .details-title {
-            font-size: 18px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            padding-bottom: 5px;
-            border-bottom: 1px solid rgba(0, 0, 0, 0.2);
-        }
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-bottom: 5px;
+    border-bottom: 1px solid rgba(0, 0, 0, 0.2);
+}
         
         .details-info {
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
+    margin-bottom: 15px;
+    font-size: 12px;
+}
         
         .details-row {
             display: flex;
@@ -197,42 +203,31 @@
             flex-grow: 1;
         }
         
-        /* Compression badge styles */
-        .compression-badge {
-            display: inline-block;
-            padding: 2px 6px;
-            border-radius: 4px;
-            font-size: 12px;
-            margin-left: 5px;
-            background-color: #4CAF50;
-            color: white;
-        }
+        
         
         /* CRITICAL FIX: Action buttons with consistent width and spacing */
         .action-buttons {
-            position: absolute;
-            display: flex;
-            flex-direction: column;
-            z-index: 5;
-            width: 250px; /* Same width as details box */
-        }
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
         
         /* CRITICAL FIX: Fixed margin between action buttons */
         .action-btn {
-            padding: 10px 15px;
-            border: 1px solid rgba(0, 0, 0, 0.2);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: all 0.2s;
-            font-family: "Lucida Console", monospace;
-            text-align: center;
-            white-space: nowrap;
-            background-color: #FFFFFF;
-            color: #000000;
-            width: 100%; /* Full width of container */
-            box-sizing: border-box;
-            margin: 0 0 15px 0; /* Bottom margin for spacing */
-        }
+    padding: 10px 15px;
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-family: "Lucida Console", monospace;
+    font-size: 11px;
+    text-align: center;
+    white-space: nowrap;
+    background-color: #FFFFFF;
+    color: #000000;
+    width: 100%;
+    box-sizing: border-box;
+}
         
         /* Last button doesn't need bottom margin */
         .action-btn:last-child {
@@ -240,8 +235,8 @@
         }
         
         .action-btn:hover {
-            opacity: 0.9;
-        }
+    opacity: 0.9;
+}
         
         /* Avatar row section - simplified for better control */
         .bottom-section {
@@ -272,8 +267,8 @@
         
         /* Individual avatar items */
         .avatar-item {
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             position: absolute;
             transform-origin: center;
             transition: all 0.3s ease;
@@ -388,8 +383,8 @@
         /* Media item styling - FIXED FOR HOVER TITLES */
         .media-item {
             position: absolute;
-            width: 60px;
-            height: 60px;
+            width: 80px;
+            height: 80px;
             transition: all 0.3s ease;
             cursor: pointer;
             transform-origin: center center;
@@ -507,25 +502,25 @@
         <div class="viewer-container" id="viewer-container">
             <canvas id="viewer-canvas"></canvas>
             
-            <div class="avatar-details" id="avatar-details">
-                <div class="details-title">Avatar Details</div>
-                <div class="details-info">
-                    <!-- Technical details will be populated dynamically -->
-                </div>
-            </div>
+<div class="avatar-details" id="avatar-details">
+    <div class="details-title">Avatar Details</div>
+    <div class="details-info">
+        <!-- Technical details will be populated dynamically -->
+    </div>
+    <div class="viewer-controls" id="viewer-controls">
+        <button class="control-btn active" id="animated-btn">Animated</button>
+        <button class="control-btn" id="tpose-btn">T-Pose</button>
+    </div>
+    <div class="action-buttons" id="action-buttons">
+        <button class="action-btn download-btn" id="download-btn">Download VRM</button>
+        <button class="action-btn buy-btn" id="buy-btn">Buy VRM</button>
+        <button class="action-btn mint-avatar-btn" id="mint-avatar-btn">Mint Avatar</button>
+        <button class="action-btn mint-artwork-btn" id="mint-artwork-btn">Mint Artwork</button>
+        <button class="action-btn view-artwork-btn" id="view-artwork-btn">View 3D Artwork</button>
+    </div>
+</div>
             
-            <div class="viewer-controls" id="viewer-controls">
-                <button class="control-btn active" id="animated-btn">Animated</button>
-                <button class="control-btn" id="tpose-btn">T-Pose</button>
-            </div>
-            
-            <div class="action-buttons" id="action-buttons">
-                <button class="action-btn download-btn" id="download-btn">Download VRM</button>
-                <button class="action-btn buy-btn" id="buy-btn">Buy VRM</button>
-                <button class="action-btn mint-avatar-btn" id="mint-avatar-btn">Mint Avatar</button>
-                <button class="action-btn mint-artwork-btn" id="mint-artwork-btn">Mint Artwork</button>
-                <button class="action-btn view-artwork-btn" id="view-artwork-btn">View 3D Artwork</button>
-            </div>
+          
             
             <div class="loading-overlay" id="loading-overlay">
                 <div class="loading-text">Forging... <span id="loading-percentage">0%</span></div>
@@ -562,27 +557,27 @@
         const CONFIG = {
             // Thumbnail parameters
             thumbnails: {
-                size: 60,            // Size of thumbnail in pixels
-                spacing: 30,         // Space between thumbnails (half the width of an item)
-                minSideOffset: 10    // Minimum space to leave on each side
+                size: 80,            // Size of thumbnail in pixels
+                spacing: 40,         // Space between thumbnails (half the width of an item)
+                minSideOffset: 40    // Minimum space to leave on each side
             },
             
             // UI Element positions
             ui: {
                 detailsBox: {
-                    top: 0,          // Top position (px)
+                    top: 120,          // Top position (px)
                     left: 0,         // Left position (px)
                     width: 250       // Width of details box (px)
                 },
                 controlButtons: {
                     top: 325,        // Top position (px)
                     left: 0,         // Left position (px)
-                    width: 250       // Width of control buttons (px)
+                    width: 220       // Width of control buttons (px)
                 },
                 actionButtons: {
                     top: 370,        // Top position (px)
                     left: 0,         // Left position (px)
-                    width: 250       // Width of action buttons (px)
+                    width: 220       // Width of action buttons (px)
                 }
             },
             
@@ -1431,7 +1426,8 @@
     name: "frued",
     collection: "Paintings",
     thumbnailUrl: "https://github.com/decentralize-dfw/c2w2-thumbnail/blob/main/frued.png?raw=true",
-    modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/joker-web-opt-babylonia.glb",
+    modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-glb/main/frued-human-900-opt-v72.glb", 
+   
     vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/Frued_C2W2_27.vrm",
     artworkUrl: null,
     downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/Frued_C2W2_27.vrm",
@@ -1539,7 +1535,7 @@
     name: "JOKER",
     collection: "Virtual Fashion",
     thumbnailUrl: "https://github.com/decentralize-dfw/c2w2-thumbnail/blob/main/joker.png?raw=true",
-    modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/joker-web-opt-v2-meshopt.glb",
+    modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/Joker-web-NOMAT-V3-v4.glb",
     vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/Joker-C2W2-3.vrm",
     artworkUrl: null,
     downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/Joker-C2W2-3.vrm",
@@ -1593,7 +1589,10 @@
   name: "memelegance dress",
   collection: "Virtual Fashion",
   thumbnailUrl: "https://github.com/decentralize-dfw/c2w2-thumbnail/blob/main/memelegencedress.png?raw=true",
-  modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-glb/main/memelegancedress-900-opt-v84.glb",
+  modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/MemeleganceDress-WEB-NOAVATAR-v8.glb",
+   //   MemeleganceDress-WEB-NOAVATAR-v8.glb
+//   MemeleganceDress-WEB-NODRES.glb
+    //https://raw.githubusercontent.com/decentralize-dfw/c2w2-glb/main/frued-human-900-opt-v72.glb
   vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/MemeleganceDress-C2W2-V2-8.vrm",
   artworkUrl: null,
   downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/MemeleganceDress-C2W2-V2-8.vrm",
@@ -2025,8 +2024,8 @@
   name: "can't see beep bop crap",
   collection: "NavyChip",
   thumbnailUrl: "https://github.com/decentralize-dfw/c2w2-thumbnail/blob/main/beeple1.png?raw=true",
-  modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-glb/main/beeple-nudedoge-opt-v63.glb",
-  vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/can't_see_beep_bop_crap_doge_C2W2_30.vrm",
+  modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-glb/main/beeple-cena-opt-v62.glb",
+  vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/can't_see_beep_bop_crap_doge_-FIT-C2W2_30_2.vrm",
   artworkUrl: null,
   downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/can't_see_beep_bop_crap_doge_C2W2_30.vrm",
   buyLink: null,
@@ -2043,8 +2042,10 @@
   name: "can't see beep bop crap",
   collection: "NavyChip",
   thumbnailUrl: "https://github.com/decentralize-dfw/c2w2-thumbnail/blob/main/beeple2.png?raw=true",
-  modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-glb/main/beeple-cena-opt-v62.glb",
-  vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/can't_see_beep_bop_crap_doge_-FIT-C2W2_30_2.vrm",
+  modelUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-glb/main/beeple-nudedoge-opt-v63.glb",
+  vrmUrl: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/can't_see_beep_bop_crap_doge_C2W2_30.vrm",
+  
+  
   artworkUrl: null,
   downloadLink: "https://raw.githubusercontent.com/decentralize-dfw/c2w2-vrm/main/can't_see_beep_bop_crap_doge_-FIT-C2W2_30_2.vrm",
   buyLink: null,
@@ -3089,35 +3090,23 @@
     return { size: size, center: center, scale: scale };
 }
         
-        function resetCameraPosition() {
-            // Fix for model disappearing on zoom
-            camera.near = 0.01;
-            camera.far = 1000;
-            camera.updateProjectionMatrix();
-            
-            // Reset camera to configured position
-            camera.position.set(
-                CONFIG.viewer.camera.position.x,
-                CONFIG.viewer.camera.position.y,
-                CONFIG.viewer.camera.position.z
-            );
-            camera.lookAt(
-                CONFIG.viewer.camera.target.x,
-                CONFIG.viewer.camera.target.y,
-                CONFIG.viewer.camera.target.z
-            );
-            
-            if (controls) {
-                controls.target.set(
-                    CONFIG.viewer.camera.target.x,
-                    CONFIG.viewer.camera.target.y,
-                    CONFIG.viewer.camera.target.z
-                );
-                controls.minDistance = 0.5; // Allow closer zoom
-                controls.maxDistance = 10;  // Allow further zoom out
-                controls.update();
-            }
-        }
+       function resetCameraPosition() {
+    // Fix for model disappearing on zoom
+    camera.near = 0.01;
+    camera.far = 1000;
+    camera.updateProjectionMatrix();
+
+    // Reset camera to configured position
+    camera.position.set(0, 1, 3); // Adjust these values as needed
+    camera.lookAt(0, 0, 0);
+
+    if (controls) {
+        controls.target.set(0, 0, 0);
+        controls.minDistance = 0.5; // Allow closer zoom
+        controls.maxDistance = 10;  // Allow further zoom out
+        controls.update();
+    }
+}
         
         function setupAnimations(animations) {
             if (!animations || animations.length === 0 || !currentModel) {
