@@ -619,9 +619,9 @@
         const CONFIG = {
             // Thumbnail parameters
             thumbnails: {
-                size: 30,            // Size of thumbnail in pixels
-                spacing: 45,         // Space between thumbnails (half the width of an item)
-                minSideOffset:10    // Minimum space to leave on each side
+                size: 80,            // Size of thumbnail in pixels
+                spacing: 40,         // Space between thumbnails (half the width of an item)
+                minSideOffset: 40    // Minimum space to leave on each side
             },
             
             // UI Element positions
@@ -629,7 +629,7 @@
                 detailsBox: {
                     top: 220,          // Top position (px)
                     left: 0,         // Left position (px)
-                    width: 200       // Width of details box (px)
+                    width: 400       // Width of details box (px)
                 }
             },
             
