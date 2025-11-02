@@ -23,7 +23,7 @@
         .container {
             display: flex;
             flex-direction: column;
-            width: 100vw;
+            width: 100%;
             height: 100vh;
             margin: 0 auto;
             position: relative;
@@ -131,9 +131,9 @@
             height: min(100vh, 840px);
             border: none;
             position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            top: 0;  /* Updated: Start from top */
+            left: 0;  /* Updated: Full-width from left */
+            transform: none;  /* Updated: No centering */
             background: white;
             display: none;
         }
@@ -273,6 +273,15 @@
             // Hide both
             dom.viewer.html.style.display = 'none';
             dom.viewer.link.style.display = 'none';
+
+            /* // Optional: Dynamic top offset for menu
+            const topSection = document.getElementById('top-section');
+            const topHeight = topSection.offsetHeight;
+            dom.viewer.html.style.top = `${topHeight}px`;
+            dom.viewer.link.style.top = `${topHeight}px`;
+            dom.viewer.html.style.height = `calc(min(100vh, 840px) - ${topHeight}px)`;
+            dom.viewer.link.style.height = `calc(min(100vh, 840px) - ${topHeight}px)`;
+            */
 
             if (type === 'html') {
                 // Reset html viewer
