@@ -1,0 +1,321 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hatch Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica", monospace;
+        }
+
+        body {
+            background-color: transparent;
+            overflow: hidden;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100vw;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .top-section {
+            height: auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background-color: transparent;
+            z-index: 10;
+            position: absolute;
+            top: 0;
+            left: 0;
+            gap: 10px;
+        }
+
+        .top-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            width: 400px;
+            gap: 10px;
+        }
+
+        .menu-btn-container {
+            z-index: 6;
+            height: 32px;
+            display: flex;
+            gap: 8px;
+            width: 400px;
+            padding: 0;
+        }
+
+        .fullscreen-row {
+            display: flex;
+            width: 400px;
+            padding: 0;
+            margin-top: 0px;
+        }
+
+        .fullscreen-container {
+            z-index: 6;
+            width: 100%;
+        }
+
+        .menu-btn, .fullscreen-btn {
+            padding: 5px 4px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 9px;
+            transition: all 0.2s;
+            color: #000;
+            box-shadow: none;
+            text-shadow: none;
+            line-height: 20px;
+            flex: 1;
+            outline: none;
+            letter-spacing: 0px;
+        }
+
+        .menu-btn {
+            font-style: italic;
+            font-weight: bold;
+            letter-spacing: 0.1px;
+            height: 32px;
+        }
+
+        .fullscreen-btn {
+            font-weight: bolder;
+            background-color: rgba(240, 240, 240, 0.9);
+            height: 30px;
+            width: 400px;
+            padding: 5px 0;
+            line-height: 20px;
+            flex: none;
+        }
+
+        .menu-btn:hover, .fullscreen-btn:hover {
+            background-color: rgba(240, 240, 240, 0.9);
+        }
+
+        .menu-btn.active {
+            background-color: rgba(100, 100, 100, 0.8);
+            color: white;
+        }
+
+        .viewer-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        #htmlViewer, #linkViewer {
+            width: 100%;
+            height: min(100vh, 840px);
+            border: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            display: none;
+        }
+
+        .container.fullscreen-mode {
+            height: 100vh !important;
+            max-height: 100vh !important;
+            width: 100vw !important;
+        }
+
+        .fullscreen-mode .viewer-container {
+            height: 100vh !important;
+        }
+
+        .fullscreen-mode .top-section {
+            display: none !important;
+        }
+
+        .fullscreen-mode #htmlViewer,
+        .fullscreen-mode #linkViewer {
+            height: 100vh !important;
+            top: 0 !important;
+            left: 0 !important;
+            transform: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-section" id="top-section">
+            <div class="top-controls">
+                <div class="menu-btn-container">
+                    <button class="menu-btn active" id="avatars-btn">Avatars</button>
+                    <button class="menu-btn" id="runway-btn">Runway</button>
+                    <button class="menu-btn" id="retail-btn">Fitting Gallery</button>
+                    <button class="menu-btn" id="media-btn">Media</button>
+                    <button class="menu-btn" id="info-btn">PDF Info</button>
+                </div>
+                <div class="fullscreen-row" id="fullscreen-row" style="display: none;">
+                    <div class="fullscreen-container">
+                        <button class="fullscreen-btn" id="fullscreen-btn">Fullscreen</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="viewer-container" id="viewer-container">
+            <iframe id="htmlViewer" src="about:blank"></iframe>
+            <iframe id="linkViewer" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        let activeMode = 'open'; // Changed to 'open' for initial load
+
+        const modeConfigs = {
+            open: { url: 'https://raw.githubusercontent.com/decentralize-dfw/finder/main/c2w2-open.html', type: 'html', hasFullscreen: false }, // Added open mode
+            avatars: { url: 'https://raw.githubusercontent.com/decentralize-dfw/finder/main/c2w2-avatars.html', type: 'html', hasFullscreen: false },
+            runway: { url: 'https://raw.githubusercontent.com/decentralize-dfw/c2w2runway/main/offthechain.html', type: 'html', hasFullscreen: true },
+            retail: { url: 'https://hyperfy.io/retail', type: 'link', hasFullscreen: true },
+            media: { url: 'https://raw.githubusercontent.com/decentralize-dfw/finder/main/media-c2w2-v3.html', type: 'html', hasFullscreen: false },
+            info: { url: 'https://raw.githubusercontent.com/decentralize-dfw/finder/main/info-pdf-c2w2.html', type: 'html', hasFullscreen: false }
+        };
+
+        const dom = {
+            viewer: {
+                html: document.getElementById('htmlViewer'),
+                link: document.getElementById('linkViewer')
+            }
+        };
+
+        function initApp() {
+            setupEventListeners();
+            loadContent(modeConfigs.open.url, modeConfigs.open.type); // Load opening page initially
+            updateMenuButtons();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('avatars-btn').addEventListener('click', () => showMode('avatars'));
+            document.getElementById('runway-btn').addEventListener('click', () => showMode('runway'));
+            document.getElementById('retail-btn').addEventListener('click', () => showMode('retail'));
+            document.getElementById('media-btn').addEventListener('click', () => showMode('media'));
+            document.getElementById('info-btn').addEventListener('click', () => showMode('info'));
+
+            document.getElementById('fullscreen-btn').addEventListener('click', toggleFullscreen);
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                const container = document.querySelector('.container');
+                if (document.fullscreenElement) {
+                    container.classList.add('fullscreen-mode');
+                } else {
+                    container.classList.remove('fullscreen-mode');
+                }
+            });
+        }
+
+        function showMode(mode) {
+            if (activeMode === mode) return;
+            activeMode = mode;
+            updateMenuButtons();
+            const config = modeConfigs[mode];
+            loadContent(config.url, config.type);
+        }
+
+        function toggleFullscreen() {
+            const container = document.querySelector('.container');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen()
+                    .then(() => {
+                        container.classList.add('fullscreen-mode');
+                    })
+                    .catch(err => console.error('Fullscreen error:', err));
+            } else {
+                document.exitFullscreen()
+                    .then(() => {
+                        container.classList.remove('fullscreen-mode');
+                    })
+                    .catch(err => console.error('Exit fullscreen error:', err));
+            }
+        }
+
+        function loadContent(url, type) {
+            const config = modeConfigs[activeMode];
+            const fullscreenRow = document.getElementById('fullscreen-row');
+            if (config.hasFullscreen) {
+                fullscreenRow.style.display = 'flex';
+            } else {
+                fullscreenRow.style.display = 'none';
+            }
+
+            // Hide both
+            dom.viewer.html.style.display = 'none';
+            dom.viewer.link.style.display = 'none';
+
+            if (type === 'html') {
+                // Reset html viewer
+                dom.viewer.html.src = 'about:blank';
+                dom.viewer.html.srcdoc = '';
+
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        dom.viewer.html.srcdoc = html;
+                        dom.viewer.html.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Loading error:', error);
+                        dom.viewer.html.srcdoc = `<p>Error loading content: ${error.message}</p>`;
+                        dom.viewer.html.style.display = 'block';
+                    });
+            } else {
+                // Reset link viewer
+                dom.viewer.link.src = 'about:blank';
+                dom.viewer.link.src = url;
+                dom.viewer.link.style.display = 'block';
+            }
+        }
+
+        function updateMenuButtons() {
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.classList.remove('active');
+                // Only set active class for menu buttons, not for 'open' mode
+                if (activeMode !== 'open' && btn.id === `${activeMode}-btn`) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+    </script>
+</body>
+</html>
