@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Viewer</title>
+    <style>
+        /* Sayfanın tamamını kaplaması ve kenar boşluklarını sıfırlamak için */
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+            font-family: sans-serif;
+            background-color: #f0f0f0; /* Arka planı görmek için hafif bir renk */
+        }
+
+        /* * body etiketini bir flex container yaparak 
+         * içindeki iframe'i ortalıyoruz.
+        */
+        body {
+            display: flex;
+            justify-content: center; /* Yatayda ortalama */
+            align-items: center;   /* Dikeyde ortalama */
+        }
+
+        /* iframe için stil ve boyutlandırma */
+        #html-viewer {
+            width: 400px;
+            height: 400px;
+            border: 1px solid #ccc; /* Çerçeveyi görmek için kenarlık */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1); /* Hafif gölge efekti */
+        }
+    </style>
+</head>
+<body>
+
+    <iframe 
+        id="html-viewer"
+        src="https://decentralize-dfw.github.io/c2w2/offthechain.html" 
+        title="HTML İçerik Görüntüleyici"
+    >
+        Üzgünüz, tarayıcınız iframe'leri desteklemiyor.
+    </iframe>
+
+</body>
+</html>
