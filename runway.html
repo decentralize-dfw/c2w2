@@ -1290,6 +1290,35 @@ if (sound6Buffer) {
     function stopSound6() {
         if (sound6 && sound6.isPlaying) { sound6.stop(); console.log('End, after all... DEATH IS SILENCE'); }
     }
+
+    async function printFinalText() {
+        console.log("Final metni alınıyor...");
+        try {
+            // 1. Metin dosyasını fetch ile çek
+            const response = await fetch('https://raw.githubusercontent.com/decentralize-dfw/c2w2runway/refs/heads/main/finalconsole.txt');
+            
+            if (!response.ok) {
+                console.error("Metin dosyası alınamadı:", response.statusText);
+                return;
+            }
+
+            // 2. Yanıtı metne dönüştür
+            const text = await response.text();
+
+            // 3. Metni satırlara ayır ('\n' new line karakterine göre)
+            const lines = text.split('\n');
+
+            // 4. Her bir satırı sırayla konsola yazdır
+            for (const line of lines) {
+                console.log(line);
+                // İsteğe bağlı: Satırlar arasında küçük bir gecikme ekleyebilirsiniz
+                // await new Promise(resolve => setTimeout(resolve, 50)); 
+            }
+
+        } catch (error) {
+            console.error("Metin alınırken veya yazdırılırken hata oluştu:", error);
+        }
+    }
     
 
 async function runSequence() {
@@ -1589,6 +1618,9 @@ async function runSequence() {
             animateModel(49);
             await wait(83);
             deleteModel(49);
+            await wait(2);
+            stopSound6();
+            await printFinalText();
 
 
         } catch (error) {
@@ -1937,4 +1969,3 @@ openInNewTabButton.addEventListener('click', (event) => {
 </script>
 </body>
 </html>
-
