@@ -1,0 +1,46 @@
+☁️ "Running fiddle"
+"THREE.WebGLRenderer: The property .physicallyCorrectLights has been removed. Set renderer.useLegacyLights instead."
+"THREE.WebGLRenderer: The property .useLegacyLights has been deprecated. Migrate your lighting according to the following guide: https://discourse.threejs.org/t/updates-to-lighting-in-three-js-r155/53733."
+"jE est Un aUtRe"
+["Assez vu.", [object DOMException] {
+  ABORT_ERR: 20,
+  code: 18,
+  DATA_CLONE_ERR: 25,
+  DOMSTRING_SIZE_ERR: 2,
+  HIERARCHY_REQUEST_ERR: 3,
+  INDEX_SIZE_ERR: 1,
+  INUSE_ATTRIBUTE_ERR: 10,
+  INVALID_ACCESS_ERR: 15,
+  INVALID_CHARACTER_ERR: 5,
+  INVALID_MODIFICATION_ERR: 13,
+  INVALID_NODE_TYPE_ERR: 24,
+  INVALID_STATE_ERR: 11,
+  message: "Failed to execute 'isSessionSupported' on 'XRSystem': Access to the feature \"xr\" is disallowed by permissions policy.",
+  name: "SecurityError",
+  NAMESPACE_ERR: 14,
+  NETWORK_ERR: 19,
+  NO_DATA_ALLOWED_ERR: 6,
+  NO_MODIFICATION_ALLOWED_ERR: 7,
+  NOT_FOUND_ERR: 8,
+  NOT_SUPPORTED_ERR: 9,
+  QUOTA_EXCEEDED_ERR: 22,
+  SECURITY_ERR: 18,
+  SYNTAX_ERR: 12,
+  TIMEOUT_ERR: 23,
+  TYPE_MISMATCH_ERR: 17,
+  URL_MISMATCH_ERR: 21,
+  VALIDATION_ERR: 16,
+  WRONG_DOCUMENT_ERR: 4
+}]
+"Iframe detected, using OrbitControls for mouse rotation"
+["La vision s’est rencontrée à tous les airs."]
+"Les arrêts de la vie."
+"Ô Rumeurs et Visions !"
+"Assez eu."
+"Départ dans l’affection et le bruit neufs !"
+"Assez connu."
+"Rumeurs des villes, le soir, et au soleil, et toujours."
+"Départ..."
+"3D AGENT BEING 1 HAS BORN. (SILENT. BUT THERE. YOU KNOW THAT)"
+"3D AGENT BEING 1 DESTINY TRIGGERED (UNTIL THE END OF THE TIME)"
+"La chair est triste, hélas! et j’ai lu tous les livres."
