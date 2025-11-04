@@ -269,6 +269,41 @@ border-color: rgba(255,255,255,.6);
     border-color: rgba(255,255,255,0.5) !important;
 }
 
+#scrollingTextContainer {
+            position: fixed;
+            inset: 0; 
+            background: transparent; /* Arka plan şeffaf */
+            display: none; 
+            opacity: 0;
+            z-index: 2000; 
+            overflow: hidden; 
+        }
+        
+        #scrollingTextContent {
+            position: absolute;
+
+            /* YENİ - Boyutlandırma: Ortada %50 genişlik */
+            width: 50%;
+            left: 25%;
+
+            transform: translateY(100vh); 
+            color: #fff; 
+            font-family: 'Courier New', Courier, monospace;
+            
+            /* YENİ - Responsive Font: Ekran genişliğine göre ölçeklenir */
+            /* clamp(min, tercih_edilen, max) */
+            font-size: clamp(7px, 0.65vw, 14px);
+
+            line-height: 1.6;
+            text-align: left; 
+            
+            /* YENİ - Hız: 100 saniyeye yavaşlatıldı */
+            transition: transform 100s linear; 
+
+            white-space: pre; /* ASCII art'ın bozulmaması için */
+        }
+
+
     </style>
     <script type="importmap">
         {
@@ -405,6 +440,12 @@ All these transformations, these ideas, are not presented as neat “10 new conc
 <strong>Enjoy the show.</strong></p>
 <i><a href="https://youtu.be/nyEjJ9KvnQc" target="_blank">Listen it here.</a></i>
     </div>
+
+<div id="scrollingTextContainer">
+        <div id="scrollingTextContent">
+            </div>
+    </div>
+
     <script type="module">
     import * as THREE from 'three';
     import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
@@ -1321,6 +1362,64 @@ if (sound6Buffer) {
     }
     
 
+
+    async function showScrollingText() {
+        console.log("HERE COMES THAT MESSAGE ON THE SCREEN! LFG. WE'RE F EARLY. SHOW ME YOUR ART. DROP BELOW. SORRY WRONG BOT. SORRY, AGENT. LOOOOOLLLL. xD");
+        try {
+            const response = await fetch('https://raw.githubusercontent.com/decentralize-dfw/c2w2runway/refs/heads/main/finalconsole.txt');
+            if (!response.ok) {
+                console.error("Metin dosyası alınamadı:", response.statusText);
+                return;
+            }
+            const text = await response.text();
+            
+            const container = document.getElementById('scrollingTextContainer');
+            const content = document.getElementById('scrollingTextContent');
+
+            content.textContent = text; 
+            
+            // --- Animasyon Sekansı ---
+
+            // 1. Fade-in
+            container.style.transition = 'opacity 1s ease'; 
+            container.style.display = 'block';
+            await wait(0.1); 
+            container.style.opacity = '1';
+            await wait(1); 
+
+            // 2. Metnin başını 3 saniye göster
+            content.style.transition = 'none'; 
+            content.style.transform = 'translateY(90vh)'; 
+            await wait(3); 
+
+            // 3. Kaydırmayı başlat
+            
+            // YENİ - Hız: 100 saniye (CSS ile eşleşiyor)
+            content.style.transition = 'transform 100s linear'; 
+            
+            content.style.transform = 'translateY(-100%)'; 
+            
+            // YENİ - Bekleme: 100 saniye (CSS ile eşleşiyor)
+            await wait(100); 
+
+            // 4. 5 saniye dur 
+            await wait(5);
+
+            // 5. Fade out
+            container.style.transition = 'opacity 3s ease'; 
+            container.style.opacity = '0';
+            await wait(3); 
+
+            // 6. Temizle
+            container.style.display = 'none';
+            content.style.transition = 'none'; 
+            content.style.transform = 'translateY(100vh)'; 
+
+        } catch (error) {
+            console.error("CAN T SHOW THE TEXT FFS.", error);
+        }
+    }
+
 async function runSequence() {
     experienceRunning = true;
     document.getElementById('initiating').style.display = 'block';
@@ -1625,17 +1724,30 @@ async function runSequence() {
 
         } catch (error) {
             console.error(`Sequence error at model ${models.length || 'unknown'}:`, error);
-        } finally {
-            document.getElementById('initiating').style.display = 'none';
+ } finally {
+            document.getElementById('initiating').style.display = 'none';
+            
             document.getElementById('ended').style.display = 'block';
-            await wait(3);
-            document.getElementById('ended').style.display = 'none';
-            if (!vrControlsActive) {
-                document.getElementById('startButton').style.display = 'block';
+            await wait(3);
+            document.getElementById('ended').style.display = 'none';
+
+            // ===========================================
+            // === VR KONTROLÜ EKLENDİ (BAŞLANGIÇ) ===
+            // ===========================================
+            // Jeneriği SADECE VR modda DEĞİLSEK göster
+            if (!vrControlsActive) { 
+                await showScrollingText();
             }
-            experienceRunning = false;
-        }
-    }
+            // ===========================================
+            // === VR KONTROLÜ (BİTİŞ) ===
+            // ===========================================
+
+            if (!vrControlsActive) {
+                document.getElementById('startButton').style.display = 'block';
+            }
+            experienceRunning = false;
+        }
+    }
     
     const startButton = document.getElementById('startButton');
     startButton.addEventListener('click', (event) => {
