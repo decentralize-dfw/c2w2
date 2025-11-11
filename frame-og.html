@@ -1,0 +1,86 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hatch Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica", monospace;
+        }
+
+        body {
+            background-color: transparent;
+            overflow: hidden;
+            color: #000;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .viewer-container {
+            width: 600px;
+            height: 600px;
+            overflow: hidden;
+            position: relative;
+            border: 2px solid lightgray; /* Çerçeveyi görmek için kenarlık */
+            
+            box-shadow: 0 4px 50px 25px rgba(0,0,0,0.7);
+        }
+
+        #htmlViewer {
+            width: 100%;
+            height: 100%;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: white;
+        }
+    </style>
+</head>
+<body>
+    <div class="viewer-container" id="viewer-container">
+        <iframe id="htmlViewer" src="about:blank"></iframe>
+    </div>
+
+    <script>
+        const dom = {
+            viewer: {
+                html: document.getElementById('htmlViewer')
+            }
+        };
+
+        function initApp() {
+            loadContent('https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/runway.html');
+        }
+
+        function loadContent(url) {
+            fetch(url)
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.text();
+                })
+                .then(html => {
+                    dom.viewer.html.srcdoc = html;
+                })
+                .catch(error => {
+                    console.error('Loading error:', error);
+                    dom.viewer.html.srcdoc = `<p>Error loading content: ${error.message}</p>`;
+                });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+    </script>
+</body>
+</html>
