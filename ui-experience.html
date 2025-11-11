@@ -50,7 +50,7 @@
             display: flex;
             flex-direction: column;
             align-items: flex-end; /* İçeriği (butonları) sağa yasla */
-            width: 500px; /* Genişlik artırıldı */
+            width: 400px; /* Genişlik artırıldı */
             gap: 10px;
         }
         /* --- GÜNCELLEME SONU --- */
@@ -173,12 +173,12 @@
             <div class="top-controls">
                 <!-- Güncellenmiş Butonlar -->
                 <div class="menu-btn-container">
-                    <button class="menu-btn" id="info-btn">Info</button>
-                    <button class="menu-btn" id="browser-btn">Browser</button>
-                    <button class="menu-btn" id="marketplace-btn">Marketplace</button>
-                    <button class="menu-btn" id="off-the-chain-btn">Off the Chain</button>
-                    <button class="menu-btn" id="hyperfy-v1-btn">Hyperfy V1</button>
-                    <button class="menu-btn" id="fitting-room-btn">Fitting Room</button>
+                    <button class="menu-btn" id="info-btn">Fixed Cam</button>
+                    <button class="menu-btn" id="browser-btn">Freewalk</button>
+                    <button class="menu-btn" id="marketplace-btn">Offthechain</button>
+                    <button class="menu-btn" id="off-the-chain-btn">Recording(MintV)</button>
+                    <button class="menu-btn" id="hyperfy-v1-btn">Recording(ShowV)</button>
+                    
                 </div>
                 <div class="fullscreen-row" id="fullscreen-row">
                     <!-- Bu butonlar JS tarafından gösterilip gizlenecek -->
@@ -199,43 +199,42 @@
         let activeMode = 'info';
 
         // Güncellenmiş mod konfigürasyonları
-        const modeConfigs = {
+        const modeConfigs = { //fixedcam
             info: { 
-                url: 'https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/opening.html', 
-                type: 'html', 
-                hasFullscreen: false 
-                // openInNewTab tanımlı değil, bu yüzden buton gizlenecek
+                url: 'https://c2w2.world/frame-og', 
+                type: 'link', 
+                hasFullscreen: false, 
+               
+                
             },
-            browser: { 
-                url: 'https://c2w2.world/frame', 
+            browser: { //freewalk
+                url: 'https://c2w2.world/freewalk', 
                 type: 'link', 
                 hasFullscreen: false, 
                 openInNewTab: 'https://c2w2.world/' // true: ana url'yi açar
             },
-            marketplace: { 
+            marketplace: {  //offthechain
                 url: 'https://c2w2.world/frame', 
-                type: 'html', 
+                type: 'link', 
                 hasFullscreen: false ,
+                openInNewTab:'https://c2w2.world/offthechain'
                 
             },
-            'off-the-chain': { 
-               url: 'https://c2w2.world/frame', 
-                type: 'link', 
-                hasFullscreen: false, 
-                openInNewTab: 'https://c2w2.world/offthechain'
+            'off-the-chain': { //recording 1
+               url: 'https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/vid-show.html', 
+                type: 'html', 
+                hasFullscreen: false 
+                
+               
             },
-            'hyperfy-v1': { 
-                url: 'https://hyperfy.io/c2w2', 
-                type: 'link', 
-                 hasFullscreen: true ,
-                openInNewTab: true 
+            'hyperfy-v1': { //recording 2
+                url: 'https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/vid-comms.html', 
+                type: 'html', 
+                hasFullscreen: false 
+                
+               
             },
-            'fitting-room': { 
-                url: 'https://hyperfy.io/retail', 
-                type: 'link', 
-                 hasFullscreen: true ,
-                openInNewTab: true  
-            }
+           
         };
 
 
@@ -267,7 +266,7 @@
             document.getElementById('marketplace-btn').addEventListener('click', () => showMode('marketplace'));
             document.getElementById('off-the-chain-btn').addEventListener('click', () => showMode('off-the-chain'));
             document.getElementById('hyperfy-v1-btn').addEventListener('click', () => showMode('hyperfy-v1'));
-            document.getElementById('fitting-room-btn').addEventListener('click', () => showMode('fitting-room'));
+           
 
             dom.buttons.fullscreen.addEventListener('click', toggleFullscreen);
             dom.buttons.newTab.addEventListener('click', openInNewTab);
