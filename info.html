@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Displayer</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #ffffff; /* Blank white background */
+            font-family: 'Helvetica', Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 800px; /* General frame height */
+            width: 100%; /* General frame width */
+            overflow: auto; /* Handle overflow if needed */
+            position: relative; /* Added to position rectangle absolutely */
+        }
+        .text-container {
+            width: 400px; /* Text area width */
+            margin: 100px auto 50px 10px; /* 100px top, auto right, 100px bottom, 20px left */
+            text-align: justify; /* Justify text */
+            font-size: 12px; /* General font size */
+            letter-spacing: -0.5px; /* -0.5 letter spacing */
+            line-height: 1; /* Improved readability */
+            letter-spacing: -1px;
+        }
+        .text-container p {
+            margin: 0 0 2em 0; /* Spacing between paragraphs */
+            text-align: justify; /* Justify text */
+            text-align-last: left; /* Last line aligned left */
+        }
+        .h1 {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: 700; /* Helvetica Bold */
+            color: #000000; /* Black */
+            font-size: 1px; /* Inherit from general font size */
+            margin: -0.5em 0; /* Spacing for h1 */
+        }
+        
+        .t1 {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: 500; /* Helvetica Semi Bold */
+            color: #818181; /* Black */
+            font-size: 15px; /* Inherit from general font size */
+            letter-spacing: -0.5px;
+            margin: -2em 0; /* Spacing for t1 */
+        }
+        .k1 {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: 700; /* Helvetica Semi Bold */
+            color: #000000; /* Black */
+            font-size: 15px; /* Inherit from general font size */
+            letter-spacing: -0.5px;
+            margin: -2em 0; /* Spacing for t1 */
+        }
+        .q1 {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: 800; /* Helvetica Semi Bold */
+            color: #a1ff00; /* Black */
+            font-size: 20px; /* Inherit from general font size */
+            letter-spacing: -0.5px;
+            margin: -2em 0; /* Spacing for t1 */
+        }
+        .exp {
+    font-family: 'Helvetica', Arial, sans-serif;
+    font-weight: 500; /* Helvetica Light */
+    font-style: italic; /* Italic */
+    font-size: 13px; /* Specific size for exp */
+    color: #979797; /* Black */
+    letter-spacing: 0.5px;
+    margin: -0.1em 0; /* Spacing for exp */
+    line-height: 1.5; /* Adjust line spacing (e.g., 1.5 for more spacing) */
+}
+        .exp2 {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: 500; /* Helvetica Light */
+            font-style: italic; /* Italic */
+            font-size: 15px; /* Specific size for exp */
+            color: #000000; /* Black */
+            letter-spacing: 2px;
+            margin: -0.1em 0; /* Spacing for exp */
+
+            
+        }
+
+        .exp3 {
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: 500; /* Helvetica Light */
+            font-style: italic; /* Italic */
+            font-size: 15px; /* Specific size for exp */
+            color: #000000; /* Black */
+            letter-spacing: 0px;
+            margin: -0.1em 0; /* Spacing for exp */
+
+            
+        }
+        .inline-h1 {
+            display: inline; /* For h1 parts like AVATARS: */
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: 800; /* Helvetica Bold */
+            color: #000000; /* Black */
+            font-size: 18px; /* General font size */
+        }
+        .inline-t1 {
+            display: inline; /* For t1 parts next to h1 labels */
+            font-family: 'Helvetica', Arial, sans-serif;
+            font-weight: 600; /* Helvetica Semi Bold */
+            color: #000000; /* Black */
+        }
+        .rectangle {
+            position: absolute; /* Position relative to the body */
+            width: 436px; /* Default width, adjustable */
+            height: 58px; /* Default height, adjustable */
+            background-color: #a1ff00; /* Default hex color (red) */
+            top: 0px; /* Default distance from top */
+            left: 0px; /* Default distance from left */
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="text-container">
+        <p><span class="inline-h1">c2w2 virtual runway, 2025<br>for 3D Beings / Agents /, 30 min.<br>browser-based, on-chain<br></span> <span class="exp">no login, no download, just click </span><br> </p>
+        
+        <p><span class="k1">Concept Summary:</span> <br><span class="t1">___Humanity evolves from touch to clicks, from atoms to codes, transforming knowledge and identity. In that transmission phase, via design, C2W2 Runway tells a six-chapter story about our relationship with tech: how it first changes art, then devalues it through mass production, and finally forces a search for new meaning and identity. </span><span class="exp3">The click is the new biology.</span></p>
+        <p><span class="k1">Overview:</span> <span class="t1"><br>___C2W2 is a 30-minute browser-based runway. No downloads, no logins. Out of seventy-five, selected forty-eight avatars appear in a six-chapter sequence, with hyper-real textile simulations and a clear narrative spine. <br>___The work merges digital fashion, architecture, and performance into one continuous environment. Each chapter marks a step in the evolution of identity, material, and medium in virtual culture.</span></p>
+        <p><span class="k1">World Insights:</span> <br><span class="t1">___The metaverse space is a minimalist, dark environment with dramatic circular lighting, evoking a digital void where avatars evolve. Avatars rotate 360 degrees and walk in 15 meter radius loops during 30 seconds each, and each has a central object related to the design. Each chapter builds on the last: starting with AI-reimagined art classics, shifting to experimental digital fashion, blending NFTs and figures, resetting with pure AI generation, ascending minimally, and rebirth through transformed echoes.</span></p>
+        <p><span class="k1">Runway Parts:</span><br><span class="t1">1- Evolution Of Medium Of Traditional Art<br>2- Virtual Fashion<br>3- Evolution Of Medium Of Art As Nft<br>4- AI Powered Design<br>5- Transhumanism<br>6- Evolution Of Art As Mutant Meaning</span></p>
+        
+
+        
+    </div>
+</body>
+</html>
