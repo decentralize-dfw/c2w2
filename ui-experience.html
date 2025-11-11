@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hatch Viewer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Helvetica", monospace;
+        }
+
+        body {
+            background-color: transparent;
+            overflow: hidden;
+            color: #000;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            display: flex;
+            flex-direction: column;
+            width: 100%;
+            height: 100vh;
+            margin: 0 auto;
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* --- MENÜYÜ SAĞA HİZALAMAK İÇİN GÜNCELLENDİ --- */
+        .top-section {
+            height: auto;
+            /* width: 100%; <- Bu satır kaldırıldı */
+            display: flex;
+            flex-direction: column;
+            padding: 15px;
+            background-color: transparent;
+            z-index: 10;
+            position: absolute;
+            top: 0;
+            right: 0; /* Sağa hizala */
+            left: auto; /* Sol hizalamayı kaldır */
+            gap: 10px;
+        }
+
+        .top-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end; /* İçeriği (butonları) sağa yasla */
+            width: 500px; /* Genişlik artırıldı */
+            gap: 10px;
+        }
+        /* --- GÜNCELLEME SONU --- */
+
+        .menu-btn-container {
+            z-index: 6;
+            height: 32px;
+            display: flex;
+            gap: 8px;
+            width: 100%; /* Konteyner genişliğine uyması için 100% yapıldı */
+            padding: 0;
+        }
+
+        .fullscreen-row {
+            display: flex;
+            width: 100%; /* Konteyner genişliğine uyması için 100% yapıldı */
+            padding: 0;
+            margin-top: 0px;
+            gap: 8px; /* Butonlar arası boşluk */
+        }
+
+        .fullscreen-container {
+            z-index: 6;
+            width: 100%;
+            display: flex;
+            gap: 8px;
+        }
+
+        .menu-btn, .fullscreen-btn {
+            padding: 5px 4px;
+            border: 1px solid rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            background-color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            font-size: 9px;
+            transition: all 0.2s;
+            color: #000;
+            box-shadow: none;
+            text-shadow: none;
+            line-height: 20px;
+            flex: 1;
+            outline: none;
+            letter-spacing: 0px;
+        }
+
+        .menu-btn {
+            font-style: italic;
+            font-weight: bold;
+            letter-spacing: 0.1px;
+            height: 32px;
+        }
+
+        .fullscreen-btn {
+            font-weight: bolder;
+            background-color: rgba(240, 240, 240, 0.9);
+            height: 30px;
+            padding: 5px 0;
+            line-height: 20px;
+            flex: 1; 
+            display: none; /* Varsayılan olarak gizli */
+        }
+
+        .menu-btn:hover, .fullscreen-btn:hover {
+            background-color: rgba(240, 240, 240, 0.9);
+        }
+
+        .menu-btn.active {
+            background-color: rgba(100, 100, 100, 0.8);
+            color: white;
+        }
+
+        .viewer-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        #htmlViewer, #linkViewer {
+            width: 100%;
+            height: 100vh;
+            border: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            transform: none;
+            background: white;
+            display: none;
+        }
+
+        .container.fullscreen-mode {
+            height: 100vh !important;
+            max-height: 100vh !important;
+            width: 100vw !important;
+        }
+
+        .fullscreen-mode .viewer-container {
+            height: 100vh !important;
+        }
+
+        .fullscreen-mode .top-section {
+            display: none !important;
+        }
+
+        .fullscreen-mode #htmlViewer,
+        .fullscreen-mode #linkViewer {
+            height: 100vh !important;
+            top: 0 !important;
+            left: 0 !important;
+            transform: none !important;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="top-section" id="top-section">
+            <div class="top-controls">
+                <!-- Güncellenmiş Butonlar -->
+                <div class="menu-btn-container">
+                    <button class="menu-btn" id="info-btn">Info</button>
+                    <button class="menu-btn" id="browser-btn">Browser</button>
+                    <button class="menu-btn" id="marketplace-btn">Marketplace</button>
+                    <button class="menu-btn" id="off-the-chain-btn">Off the Chain</button>
+                    <button class="menu-btn" id="hyperfy-v1-btn">Hyperfy V1</button>
+                    <button class="menu-btn" id="fitting-room-btn">Fitting Room</button>
+                </div>
+                <div class="fullscreen-row" id="fullscreen-row">
+                    <!-- Bu butonlar JS tarafından gösterilip gizlenecek -->
+                    <button class="fullscreen-btn" id="fullscreen-btn">Fullscreen</button>
+                    <button class="fullscreen-btn" id="new-tab-btn">Open in New Tab</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="viewer-container" id="viewer-container">
+            <iframe id="htmlViewer" src="about:blank"></iframe>
+            <iframe id="linkViewer" src="about:blank"></iframe>
+        </div>
+    </div>
+
+    <script>
+        // 'info' modu varsayılan olarak ayarlandı
+        let activeMode = 'info';
+
+        // Güncellenmiş mod konfigürasyonları
+        const modeConfigs = {
+            info: { 
+                url: 'https://raw.githubusercontent.com/decentralize-dfw/c2w2/main/opening.html', 
+                type: 'html', 
+                hasFullscreen: false 
+                // openInNewTab tanımlı değil, bu yüzden buton gizlenecek
+            },
+            browser: { 
+                url: 'https://c2w2.world/frame', 
+                type: 'link', 
+                hasFullscreen: false, 
+                openInNewTab: 'https://c2w2.world/' // true: ana url'yi açar
+            },
+            marketplace: { 
+                url: 'https://c2w2.world/frame', 
+                type: 'html', 
+                hasFullscreen: false ,
+                
+            },
+            'off-the-chain': { 
+               url: 'https://c2w2.world/frame', 
+                type: 'link', 
+                hasFullscreen: false, 
+                openInNewTab: 'https://c2w2.world/offthechain'
+            },
+            'hyperfy-v1': { 
+                url: 'https://hyperfy.io/c2w2', 
+                type: 'link', 
+                 hasFullscreen: true ,
+                openInNewTab: true 
+            },
+            'fitting-room': { 
+                url: 'https://hyperfy.io/retail', 
+                type: 'link', 
+                 hasFullscreen: true ,
+                openInNewTab: true  
+            }
+        };
+
+
+        const dom = {
+            viewer: {
+                html: document.getElementById('htmlViewer'),
+                link: document.getElementById('linkViewer')
+            },
+            buttons: {
+                fullscreen: document.getElementById('fullscreen-btn'),
+                newTab: document.getElementById('new-tab-btn')
+            },
+            rows: {
+                fullscreen: document.getElementById('fullscreen-row')
+            }
+        };
+
+        function initApp() {
+            setupEventListeners();
+            // Varsayılan olarak 'info' modunu yükle
+            loadContent(modeConfigs.info.url, modeConfigs.info.type);
+            updateMenuButtons();
+        }
+
+        // Güncellenmiş event listener'lar
+        function setupEventListeners() {
+            document.getElementById('info-btn').addEventListener('click', () => showMode('info'));
+            document.getElementById('browser-btn').addEventListener('click', () => showMode('browser'));
+            document.getElementById('marketplace-btn').addEventListener('click', () => showMode('marketplace'));
+            document.getElementById('off-the-chain-btn').addEventListener('click', () => showMode('off-the-chain'));
+            document.getElementById('hyperfy-v1-btn').addEventListener('click', () => showMode('hyperfy-v1'));
+            document.getElementById('fitting-room-btn').addEventListener('click', () => showMode('fitting-room'));
+
+            dom.buttons.fullscreen.addEventListener('click', toggleFullscreen);
+            dom.buttons.newTab.addEventListener('click', openInNewTab);
+
+            document.addEventListener('keydown', e => {
+                if (e.key === 'Escape' && document.fullscreenElement) {
+                    document.exitFullscreen();
+                }
+            });
+
+            document.addEventListener('fullscreenchange', () => {
+                const container = document.querySelector('.container');
+                if (document.fullscreenElement) {
+                    container.classList.add('fullscreen-mode');
+                } else {
+                    container.classList.remove('fullscreen-mode');
+                }
+            });
+        }
+
+        function showMode(mode) {
+            if (activeMode === mode) return;
+            activeMode = mode;
+            updateMenuButtons();
+            const config = modeConfigs[mode];
+            loadContent(config.url, config.type);
+        }
+
+        function toggleFullscreen() {
+            const container = document.querySelector('.container');
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen()
+                    .then(() => {
+                        container.classList.add('fullscreen-mode');
+                    })
+                    .catch(err => console.error('Fullscreen error:', err));
+            } else {
+                document.exitFullscreen()
+                    .then(() => {
+                        container.classList.remove('fullscreen-mode');
+                    })
+                    .catch(err => console.error('Exit fullscreen error:', err));
+            }
+        }
+
+        // GÜNCELLENMİŞ FONKSİYON: openInNewTab
+        function openInNewTab() {
+            const config = modeConfigs[activeMode];
+            if (!config || !config.openInNewTab) {
+                console.log('Bu mod için "Open in New Tab" ayarlanmamış.');
+                return;
+            }
+
+            let urlToOpen;
+
+            if (typeof config.openInNewTab === 'string') {
+                // Eğer bir string (özel URL) ise, onu aç
+                urlToOpen = config.openInNewTab;
+            } else if (config.openInNewTab === true) {
+                // Eğer 'true' ise, ana url'yi aç
+                urlToOpen = config.url;
+            }
+
+            if (urlToOpen && urlToOpen !== 'about:blank') {
+                window.open(urlToOpen, '_blank');
+            } else {
+                console.log('Yeni sekmede açılacak geçerli bir URL bulunamadı.');
+            }
+        }
+
+        // GÜNCELLENMİŞ FONKSİYON: loadContent
+        function loadContent(url, type) {
+            const config = modeConfigs[activeMode];
+            if (!config) {
+                console.error(`Mode '${activeMode}' not found in modeConfigs.`);
+                return;
+            }
+
+            // Butonların görünürlüğünü kontrol et
+            let anyButtonVisible = false;
+
+            // Fullscreen butonunu kontrol et
+            if (config.hasFullscreen) {
+                dom.buttons.fullscreen.style.display = 'block';
+                anyButtonVisible = true;
+            } else {
+                dom.buttons.fullscreen.style.display = 'none';
+            }
+
+            // Yeni 'openInNewTab' mantığını kontrol et
+            if (config.openInNewTab) { // (true veya string ise çalışır)
+                dom.buttons.newTab.style.display = 'block';
+                anyButtonVisible = true;
+            } else {
+                dom.buttons.newTab.style.display = 'none';
+            }
+
+            // Eğer herhangi bir buton görünürse, tüm satırı göster
+            if (anyButtonVisible) {
+                dom.rows.fullscreen.style.display = 'flex';
+            } else {
+                dom.rows.fullscreen.style.display = 'none';
+            }
+
+
+            // Her iki iframe'i de sıfırla
+            dom.viewer.html.src = 'about:blank';
+            dom.viewer.html.srcdoc = '';
+            dom.viewer.link.src = 'about:blank';
+
+            // İkisini de gizle
+            dom.viewer.html.style.display = 'none';
+            dom.viewer.link.style.display = 'none';
+
+            if (type === 'html') {
+                fetch(url)
+                    .then(response => {
+                        if (!response.ok) {
+                            if (url === 'about:blank') {
+                                // 'about:blank' için hata atma, boş sayfa göster
+                                return '<html><body style="background:white;"></body></html>';
+                            }
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        return response.text();
+                    })
+                    .then(html => {
+                        dom.viewer.html.srcdoc = html;
+                        dom.viewer.html.style.display = 'block';
+                    })
+                    .catch(error => {
+                        console.error('Loading error:', error);
+                        dom.viewer.html.srcdoc = `<p>Error loading content: ${error.message}</p>`;
+                        dom.viewer.html.style.display = 'block';
+                    });
+            } else {
+                dom.viewer.link.src = url;
+                dom.viewer.link.style.display = 'block';
+            }
+        }
+
+        // Güncellenmiş buton aktif etme fonksiyonu
+        function updateMenuButtons() {
+            document.querySelectorAll('.menu-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.id === `${activeMode}-btn`) {
+                    btn.classList.add('active');
+                }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            initApp();
+        });
+    </script>
+</body>
+</html>
