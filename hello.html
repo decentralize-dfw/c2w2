@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>C2W2 Virtual Runway</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cardo:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        @font-face {
+            font-family: 'Chomsky';
+            src: url('https://github.com/decentralize-dfw/font/raw/refs/heads/main/Chomsky.otf') format('opentype');
+            font-weight: normal;
+            font-style: normal;
+        }
+        :root {
+            --side-padding: 20%; /* Sağ ve soldan %20 padding */
+            --horizontal-gap: 10px; /* Yatay aralık piksel */
+            --vertical-gap: 20px; /* Dikey aralık piksel */
+            --section-spacing: 10px; /* Bölümler arası piksel boşluk */
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #f2f2f7; /* Apple light gray background */
+            color: #1c1c1e; /* Dark text for light theme */
+            font-family: 'Cardo', serif;
+            line-height: 1.6;
+        }
+        h1, h2, h3 {
+            font-family: 'Chomsky', sans-serif;
+            font-weight: normal;
+            color: #000000; /* Black headings */
+        }
+        p {
+            text-align: justify;
+            text-align-last: center;
+            word-wrap: break-word;
+            color: #333333; /* Dark gray text */
+        }
+        .section {
+            padding: 80px var(--side-padding);
+            margin-bottom: var(--section-spacing);
+            position: relative;
+        }
+        .media-container {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+            margin: 0;
+        }
+        .media-container img,
+        .media-container video,
+        .media-container iframe {
+            width: 100%;
+            height: auto;
+            display: block;
+        }
+        /* 1 - Anasayfa */
+        #section1 {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            background-color:TRANSPARENT; // #f2f2f7; /* Fallback light gray */
+        }
+        #section1 .media-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+        }
+        #section1 img.logo {
+            max-width: 50%;
+            height: auto;
+            z-index: 1;
+        }
+        /* 2 - Alternating sections */
+        .alternating-section {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: var(--vertical-gap);
+            gap: var(--horizontal-gap);
+            background-color: rgba(255,255,255,,0.2); /* White card */
+            padding: 20px;
+            border-radius: 12px; /* Apple-style rounded corners */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2); /* Subtle shadow */
+        }
+        .alternating-section.reverse {
+            flex-direction: row-reverse;
+        }
+        .info {
+            width: 45%;
+            padding: 0 20px;
+        }
+        .image {
+            width: 45%;
+        }
+        /* 3 - Başlık, açıklama, altta image */
+        #section3 {
+            text-align: center;
+            background-color: #ffffff;
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        #section3 .media-container {
+            margin-top: 20px;
+            max-width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+        /* 4 - Grid info */
+        #section4 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: var(--horizontal-gap) var(--vertical-gap);
+        }
+        .grid-item {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-start;
+            text-align: left;
+            overflow: hidden;
+            max-width: 100%;
+            background-color: #ffffff; /* White card */
+            border-radius: 12px; /* Rounded corners */
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1); /* Subtle shadow, no border */
+            box-sizing: border-box;
+        }
+        .grid-item .media-container {
+            width: 100%;
+            margin: 0;
+            padding: 0;
+        }
+        .grid-item .text-container {
+            width: 100%;
+            padding: 10px 15px;
+            box-sizing: border-box;
+            overflow: hidden;
+            margin-top: 0;
+        }
+        .grid-item .text-container h3 {
+            margin: 0 0 5px 0;
+            font-size: 14px;
+            color: #000000;
+        }
+        .grid-item .text-container p {
+            margin: 0;
+            font-size: 11px;
+            color: #333333;
+        }
+        /* 5 - Yazı, ortada GIF, CTA */
+        #section5 {
+            text-align: center;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 40px;
+            position: relative;
+        }
+        #section5 .media-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+        }
+        #section5 .content {
+            position: relative;
+            z-index: 1;
+        }
+        .cta-button {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #007aff; /* Apple blue */
+            color: #ffffff;
+            border-radius: 50px;
+            margin-top: 20px;
+            font-size: 1.2rem;
+            text-decoration: none;
+        }
+        /* 6 - Outro */
+        #section6 {
+            text-align: left;
+            font-size: 0.9rem;
+            border-top: 1px solid #d2d2d7; /* Light gray border */
+            padding-top: 40px;
+            background-color: #ffffff;
+            border-radius: 12px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 40px;
+            position: relative;
+        }
+        #section6 .media-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 1 - Anasayfa: BG media, centered PNG logo -->
+    <section id="section1" class="section">
+        <div class="media-container">
+            <!-- Buraya GIF, image, video veya HTML koy: -->
+            <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-hello/main/white2.jpg" alt="Background Image">
+        </div>
+        <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-hello/main/logo_evo_08.png" alt="C2W2 Logo" class="logo">
+    </section>  
+
+    <!-- 2 - Sollu sağlı info ve PNG images (5 tane, alternating) -->
+    <section id="section2" class="section">
+        <div class="alternating-section">
+            <div class="info">
+                <h2>Humanity's Evolution</h2>
+                <p>Humanity evolves from touch to clicks, from atoms to codes, transforming knowledge and identity. In this transmission phase, via design, C2W2 Runway tells a six-chapter story about our relationship with tech.</p>
+            </div>
+            <div class="image">
+                <div class="media-container">
+                    <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-hello/main/logo_evo_07.png" alt="Evolution Image">
+                </div>
+            </div>
+        </div>
+        <div class="alternating-section reverse">
+            <div class="info">
+                <h2>Tech's Impact on Art</h2>
+                <p>How it first changes art, then devalues it through mass production, and finally forces a search for new meaning and identity. The click is the new biology.</p>
+            </div>
+            <div class="image">
+                <div class="media-container">
+                    <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-hello/main/logo_evo_09.png" alt="Art Impact Image">
+                </div>
+            </div>
+        </div>
+        <div class="alternating-section">
+            <div class="info">
+                <h2>C2W2 Overview</h2>
+                <p>C2W2 is a 30-minute browser-based runway. No downloads, no logins. Out of seventy-five, selected forty-eight avatars appear in a six-chapter sequence, with hyper-real textile simulations and a clear narrative spine.</p>
+            </div>
+            <div class="image">
+                <div class="media-container">
+                    <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_05.jpg" alt="Overview Image">
+                </div>
+            </div>
+        </div>
+        <div class="alternating-section reverse">
+            <div class="info">
+                <h2>Merging Disciplines</h2>
+                <p>The work merges digital fashion, architecture, and performance into one continuous environment. Each chapter marks a step in the evolution of identity, material, and medium in virtual culture.</p>
+            </div>
+            <div class="image">
+                <div class="media-container">
+                    <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_06.jpg" alt="Merging Image">
+                </div>
+            </div>
+        </div>
+        <div class="alternating-section">
+            <div class="info">
+                <h2>World Insights</h2>
+                <p>The metaverse space is a minimalist, dark environment with dramatic circular lighting, evoking a digital void where avatars evolve. Avatars rotate 360 degrees and walk in 15 meter radius loops during 30 seconds each.</p>
+            </div>
+            <div class="image">
+                <div class="media-container">
+                    <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_07.jpg" alt="World Insights Image">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- 3 - Başlık, açıklama, altta image -->
+    <section id="section3" class="section">
+        <h2>Introducing C2W2 Virtual Runway 2025</h2>
+        <p>C2W2 Virtual Runway, 2025 for 3D Beings and Agents. A 30 min. browser-based, on-chain experience with no login, no download—just click. Each chapter builds on the last: starting with AI-reimagined art classics, shifting to experimental digital fashion, blending NFTs and figures, resetting with pure AI generation, ascending minimally, and rebirth through transformed echoes.</p>
+        <div class="media-container">
+            <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_08.jpg" alt="Runway Image">
+        </div>
+    </section>
+
+    <!-- 4 - 6 farklı image ve açıklama grid (3'erli 2 sıra) -->
+    <section id="section4" class="section">
+        <div class="grid-item">
+            <div class="media-container">
+                <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_09.jpg" alt="Evolution of Medium of Traditional Art">
+            </div>
+            <div class="text-container">
+                <h3>Evolution Of Medium Of Traditional Art</h3>
+                <p>Starting with AI-reimagined art classics, this chapter explores how technology transforms traditional mediums into digital expressions.</p>
+            </div>
+        </div>
+        <div class="grid-item">
+            <div class="media-container">
+                <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_10.jpg" alt="Virtual Fashion">
+            </div>
+            <div class="text-container">
+                <h3>Virtual Fashion</h3>
+                <p>Shifting to experimental digital fashion, featuring hyper-real textile simulations in a virtual environment.</p>
+            </div>
+        </div>
+        <div class="grid-item">
+            <div class="media-container">
+                <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_11.jpg" alt="Evolution Of Medium Of Art As NFT">
+            </div>
+            <div class="text-container">
+                <h3>Evolution Of Medium Of Art As NFT</h3>
+                <p>Blending NFTs and figures, examining the devaluation and new value in mass-produced digital art.</p>
+            </div>
+        </div>
+        <div class="grid-item">
+            <div class="media-container">
+                <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_12.jpg" alt="AI Powered Design">
+            </div>
+            <div class="text-container">
+                <h3>AI Powered Design</h3>
+                <p>Resetting with pure AI generation, showcasing designs born entirely from algorithmic creativity.</p>
+            </div>
+        </div>
+        <div class="grid-item">
+            <div class="media-container">
+                <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_13.jpg" alt="Transhumanism">
+            </div>
+            <div class="text-container">
+                <h3>Transhumanism</h3>
+                <p>Ascending minimally, delving into the fusion of human identity with technological augmentation.</p>
+            </div>
+        </div>
+        <div class="grid-item">
+            <div class="media-container">
+                <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_14.jpg" alt="Evolution Of Art As Mutant Meaning">
+            </div>
+            <div class="text-container">
+                <h3>Evolution Of Art As Mutant Meaning</h3>
+                <p>Rebirth through transformed echoes, searching for new meaning in a post-digital art landscape.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- 5 - Yazı, ortada GIF, call to action -->
+    <section id="section5" class="section">
+        <div class="media-container">
+            <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_15.jpg" alt="Eyes Image">
+        </div>
+        <div class="content">
+            <h2>Experience C2W2 Now</h2>
+            <p>30-minute experience. Runs fully in a web browser on-chain. Single link includes Desktop / VR / Marketplace versions. Freewalk version in Desktop / VR, Marketplace version with fixed cam views. Features 48 garments, all in GLB format, VRM ready.</p>
+            <a href="https://example.com" target="_blank" class="cta-button">Join the Runway</a>
+        </div>
+    </section>
+
+    <!-- 6 - Outro -->
+    <section id="section6" class="section">
+        <div class="media-container">
+            <img src="https://raw.githubusercontent.com/decentralize-dfw/c2w2-pdf2/main/C2W2_Page_16.jpg" alt="Outro Image">
+        </div>
+        <h3>Technical Milestones</h3>
+        <p>Originally built on Hyperfy v1. Rebuilt using Three.js. Mintable as an HTML-based NFT. All files used in the show are stored on Arweave (PFADI), with the NFT minted on Ethereum.</p>
+        <p>First time ever that a metaverse experience itself has been directly minted and can be watched straight from OpenSea or any browser window. First time ultra-realistic, dynamic textile physics from Clo3D has been successfully exhibited in a standard web browser environment.</p>
+        <p>C2W2 stands for runway and avatars of click-to-wear, season 2.</p>
+    </section>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
