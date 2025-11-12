@@ -1,0 +1,529 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>DFW HOME — Vertical Gallery (Fixed)</title>
+<style>
+  :root{
+    --slide-h: 800px;
+    --fade-ms: 250ms;
+  }
+
+  html,body{margin:0;padding:0;background:#000;color:#fff;font-family:Arial,Helvetica,sans-serif;overflow-x:hidden}
+  *{box-sizing:border-box}
+
+  /* Loader (fixed) */
+  .loading{position:fixed;inset:0;display:flex;align-items:center;justify-content:center;background:#000;z-index:10000;color:#fff;gap:12px;flex-direction:column;text-align:center}
+  .spinner{width:34px;height:34px;border-radius:50%;border:3px solid #444;border-top-color:#fff;animation:spin 1s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .load-text{font-size:14px;opacity:.9}
+
+  /* App */
+  .app{visibility:hidden}
+  .app.ready{visibility:visible}
+
+  /* Slides */
+  .gallery{width:100%;margin:0 auto}
+  .slide{position:relative;width:100%;height:var(--slide-h);overflow:hidden;border-bottom:1px solid rgba(255,255,255,0.06)}
+
+  /* Full-cover görsel */
+  .visual{position:absolute;inset:0;background:#000 center/cover no-repeat;transition:opacity var(--fade-ms) ease;z-index:1}
+  .visual.fadeout{opacity:0}
+
+  /* Merkez (başlık + enter) */
+  .center-stack{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;z-index:3;width:min(92vw,1200px);padding:0 12px;text-align:center}
+  .hidden{display:none!important}
+
+  /* Başlık: tek satır + sadece metin kadar siyah highlight */
+  .media-title{display:inline-block;max-width:92vw;background:rgba(0,0,0,0.85);padding:8px 14px;border-radius:6px;font-size:28px;font-weight:800;letter-spacing:-.3px;line-height:1.15;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+  /* ENTER */
+  .enter-wrap{display:flex;flex-direction:column;align-items:center;gap:6px}
+  .enter-btn{display:inline-flex;align-items:center;justify-content:center;height:44px;padding:0 18px;border-radius:10px;background:rgba(255,255,255,0.9);color:#000;font-weight:800;letter-spacing:-.3px;cursor:pointer;user-select:none;transition:transform .1s ease,opacity .2s ease}
+  .enter-btn:active{transform:translateY(1px) scale(.99)}
+  .enter-hint{font-style:italic;font-size:10px;opacity:.55;text-align:center}
+
+  /* Alt yığın: en altta subtext, 15px üstünde açıklama alanı (max 300px) */
+  .bottom-stack{position:absolute;left:50%;bottom:15px;transform:translateX(-50%);width:min(92vw,1200px);z-index:3;display:flex;flex-direction:column;align-items:center;justify-content:flex-end}
+  .meta-text{width:100%;max-height:300px;overflow-y:auto;-webkit-overflow-scrolling:touch;margin-bottom:15px}
+  .media-description{font-size:13px;line-height:1.6;opacity:.95;margin:0;text-align:justify;text-align-last:left}
+  .media-subtext{width:100%;font-size:11px;line-height:1.4;opacity:.75;font-style:italic;text-align:center}
+
+  /* Viewer */
+  .viewer{position:absolute;inset:0;z-index:2;display:none;background:#000}
+  .viewer.white{background:#fff}
+  .viewer.active{display:block}
+  .viewer-iframe{position:absolute;inset:0;width:100%;height:100%;border:0;background:transparent}
+  /* Controls */
+  .viewer-controls{position:absolute;top:12px;right:12px;z-index:6;display:flex;gap:8px}
+  .ctl-btn{font-size:10px;font-weight:700;font-style:italic;padding:6px 8px;border-radius:6px;background:rgba(255,255,255,0.85);color:#000;cursor:pointer;border:none}
+</style>
+</head>
+<body>
+
+<!-- LOADER -->
+<div class="loading" id="loading">
+  <div class="spinner"></div>
+  <div class="load-text" id="loadText">Forging... 0%</div>
+</div>
+
+<div class="app" id="app">
+  <div class="gallery" id="gallery"></div>
+</div>
+
+<script>
+/* =========================
+   MEDIA (TAM kopya + farklı buttonLabel örnekleri)
+   ========================= */
+const MEDIA = [
+  {
+    id: 'hatch',
+    name: 'HATCH, Virtual Theater No:3, 07/24',
+    description: 'In a nihilistic virtual setup, two digital beings and an external entity explore existence, freedom, and control. Their journey leads them to question the nature of their reality and dimensions, uncovering deeper truths that challenge their roles. The external entity faces a pivotal choice that could redefine their understanding of existence.',
+    subtext: 'Explore all the theaters from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_657bbf289a904a829b19a01fc2acbbb2~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_26886a672f784198b9f8af4c4c93a5b9~mv2.jpg',
+    link: 'https://hyperfy.io/hatch',
+    buttonLabel: 'Watch Play'
+  },
+  {
+    id: 'balloon',
+    name: 'BALLOON, Virtual Theater No:2, 05/24',
+    description: 'Balloon No. 2 is a 10-minute WebXR theater piece exploring the absurdity and depth of digital identity in metaverse culture. Accessible via Hyperfy, it places the audience in a surreal environment through VR or desktop, blending architecture, fashion, and AI-driven dialogue. With three seamless acts triggered by interactive visuals, the experience offers a dynamic and personal journey through 32 choreographed camera angles or free exploration in VR. It requires no login or downloads—just a link. A new form of digital performance born for the screen.',
+    subtext: 'Explore all the theaters from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_55d49a9e02b74a76bca4a0177a9fa5df~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_c9415cfa41d943a7ae7ec18cc8a81a63~mv2.png',
+    link: 'https://hyperfy.io/balloon',
+    buttonLabel: 'Enter Balloon'
+  },
+  {
+    id: 'wwe',
+    name: 'WHY WE EXIST?, Virtual Theater No:1, 11/23',
+    description: '"Why We Exist" emerges as an innovative virtual theater experience, marking a pioneering venture into the realm of digital performance art. This concept, the first of its kind in based civilization, pushes the boundaries of digital creativity and immersive storytelling through two distinct modes: Cinematic and Immersive. Please click "Experience Now" to see the play directly, (PC / VR)',
+    subtext: 'Explore all the theaters from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_8362a66b73ca47bd92c9ed90eef359ba~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_ba80e31fd25540a5b648f40640b7eaae~mv2.jpg',
+    link: 'https://hyperfy.io/pill',
+    buttonLabel: 'Experience Now'
+  },
+  {
+    id: 'c2w2_avatars',
+    name: 'C2W2, VRM Collection for Virtual Net Runners, 2025',
+    description: 'C2W2 celebrates human culture in a shape of a gateway to premium virtual identity: avatars forged for net runners, digital agents, sparring partners, or facades across social networks. Each fit is an ideology, an identity, bridging organic and virtual. Fashion, gaming, metaverse: however you call it, this collection is a statement of reality. Everything here is a meme, serious in its depth. A palette of tools, high taste, 3Difying people and artworks for the first time. From flat jpegs to layered depth, new perceptions, new ways to communicate. Low-poly assets, realistic garments: human palette, agent medium, virtual life. +60 vrm avatars.',
+    subtext: 'A new breed rising, s00n.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_488091e2766a49f084a279c37d8017c5~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_8ea705af2b04470db99ed4122b5bbb5a~mv2.jpg',
+    link: 'https://video.wixstatic.com/video/54a996_2aaaafa5eaaa45db90f654f6266f3520/1080p/mp4/file.mp4',
+    buttonLabel: 'Preview Trailer'
+  },
+  {
+    id: 'c2w_runway',
+    name: 'C2W, Metaverse Runway Event, 09/11/23',
+    description: 'The C2W Metaverse Runway event, held on 9.11.23 and was accessible through a $20 ticket purchased between 1-2.11.23 following the Digital Fashion Showcase at New Codes in London by VCA x Draup, showcased a distinctive digital fashion collection. This event provided attendees with an immersive virtual fashion show experience directly from their browsers without the need for downloads, marking a significant step in exploring and redefining personal expression in digital realms. Alongside their ticket, attendees received a complimentary avatar, The Viewer, which they showcased during this token-gated event. The show is available for free to anyone now.',
+    subtext: 'Explore the runway from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_8b9ecdfee9b0416497b06cd601c515df~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_e049a6653d214b2f9237891d21fb05af~mv2.jpg',
+    link: 'https://hyperfy.io/c2w',
+    buttonLabel: 'Open Runway'
+  },
+  {
+    id: 'c2w_avatar_collection',
+    name: 'C2W, VRM Avatars x16, 11/23',
+    description: 'A conversation between code and couture, between the avatar and the individual.These 16 personas are not mere 3D pixels; they are the new expression of self, where every mesh and mapped PNG screams a narrative of identity. They are molded by a vision where the decentralization of self meets the reconstruction of representation in software-scapes. They represent a new form of existence, a silent statement in a realm where we transform ourselves to exist. C2W stands to embrace a new narrative of what fashion can be. It’s a ticket to a reality where your digital avatar is a reflection of your taste and a part of a larger movement that’s redefining fashion in the digital age.A conversation between code and couture, between the avatar and the individual. ',
+    subtext: 'Explore the collection from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_8b9ecdfee9b0416497b06cd601c515df~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_800a41f3b5cb4005a25b8d14eabbad45~mv2.jpg',
+    link: 'https://video.wixstatic.com/video/54a996_ec462c493fd541a6801a7b1e1ccd59fb/1080p/mp4/file.mp4',
+    buttonLabel: 'View x16'
+  },
+  {
+    id: 'scaffold',
+    name: 'SCAFFOLD, 3D Architectural Browser, 2024',
+    description: 'A silent structure that is built around architectural smart objects. Explore all 50 digital topographies with a single click, or experiment with guided tours via NPCs.',
+    subtext: 'Explore other galleries, or all of the spaces from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_610326d29cfd4daa96db8c86d1cb033b~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_a4275b8206ae43d3ae134f283411acf2~mv2.jpg',
+    link: 'https://hyperfy.io/scaffold',
+    buttonLabel: 'Launch Scaffold'
+  },
+  {
+    id: 'retail',
+    name: 'RETAIL, 3D Beings Shop for C2W2.vrm, 2025',
+    description: 'Retail in the metaverse bridges the gap between fashion and daily life, offering a unique platform for connection and innovation. Go in, walk inside, test the garments.',
+    subtext: 'Explore all the galleries from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_3a566c9262264a2490ba38ecba6e65b5~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_09c1a68b1dff4c168445589c079c6596~mv2.jpg',
+    link: 'https://hyperfy.io/retail',
+    buttonLabel: 'Enter Retail'
+  },
+  {
+    id: 'neue2dojo',
+    name: 'NEUE² DOJO GALLERY, Independent Gallery, 2023',
+    description: 'Neue² Dojo Gallery stands at the forefront of a cultural revolution, exemplifying how art and technology can coalesce to create entirely new paradigms for cultural expression and engagement.',
+    subtext: 'Explore all the galleries from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_e2b6353a23e14e489ee6ee3d341fdd80~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_6af9880c704747ee91e6760a6c6443ad~mv2.jpg',
+    link: 'https://hyperfy.io/neue2dojo',
+    buttonLabel: 'Open Gallery'
+  },
+  {
+    id: 'elements_store',
+    name: 'ELEMENTS STORE, Virtual Design Store, 2024',
+    description: 'The Elements Store in Hyperfy is a futuristic, minimalist three-floor gallery showcasing DFW’s design legacy (from the iconic Mermaid Chair to furniture, sculptures, and vehicles) offering 15,625 unique spatial variations through customizable layouts, materials, and colors. Inspired by the “sampling and chopping” techniques of experimental music, the environment itself becomes an evolving composition, blending collage and surreal overlays to shift perception in real time. More than a showroom, it functions as a spatial instrument where users explore works from 2021 onward and experience digital design through play, layering, and choice.',
+    subtext: 'Explore all the galleries from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_2da52be408d042ce87f0ffde7f3dc15c~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_249824f6849b4fd78d4ac6b9691b226e~mv2.jpg',
+    link: 'https://hyperfy.io/dfw',
+    buttonLabel: 'Explore Store'
+  },
+  {
+    id: 'blackcity',
+    name: 'BLACK CITY, Decentralized Virtual ROOMSscape, 2023',
+    description: 'A virtual city with 8 independent museums (MOCA ROOMS), designed by DFW and curated on-chain by their citizens, 2023',
+    subtext: 'Explore all the galleries from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_bfaf132093d2475f9cd8da1247292760~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_d7c0f7edddad4724bf78fa801b49da3a~mv2.jpg',
+    link: 'https://hyperfy.io/blackcity',
+    buttonLabel: 'Visit City'
+  },
+  {
+    id: 'forge',
+    name: 'FORGE, NoiseDao Audio Museumworld',
+    description: 'NoiseDAO World Design: A Decentralized Approach to Music and Art',
+    subtext: 'Explore all the galleries from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_5ad4cee848d04581a96d2762fd1ca332~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_3e3a8b5e493a43f1b40c296812393a7e~mv2.jpg',
+    link: 'https://hyperfy.io/noise',
+    buttonLabel: 'Enter Forge'
+  },
+  {
+    id: 'c2w2_runway',
+    name: 'C2W2, Metaverse Runway Event, 2025 (TBA)',
+    description: 'The C2W2 virtual runway on Hyperfy, accessible via VR or PC through the link, is a 30-minute metaverse event showcasing nearly 50 AI-designed avatars across six thematic parts, blending traditional art, virtual fashion, NFTs, and transhumanism. Through dramatic lighting and a minimalist setting, it explores identity, technology, and belonging in a fragmented, three-dimensional narrative.',
+    subtext: 's00n.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_488091e2766a49f084a279c37d8017c5~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_0dcf9180991d4e49942304a01f9224c5~mv2.jpg',
+    link: 'https://video.wixstatic.com/video/54a996_3228af9d616c49b58bf10884ffd7657a/1080p/mp4/file.mp4',
+    buttonLabel: 'Runway Teaser'
+  },
+  {
+    id: 'digital_topographies',
+    name: 'DIGITAL TOPOGRAPHIES, 3D Architectural Works',
+    description: 'Digital Topographies redefines architecture by liberating it from gravity, weather, and material limits. Conceived as immersive 3D models, it spans galleries, arenas, pavilions, workplaces, and retail spaces designed for avatars. Light, sound, and form become dynamic tools, shaping experiences that adapt to users. Blending code with culture, it fosters inclusivity, interactivity, and co-creation, transforming architecture into a shared digital narrative that enriches community and imagination.',
+    subtext: 'Explore all the on-chain spaces from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_8a3d96c1923642aa871699aa3c7b2b9d~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_3243206499e746e99f403f1865458700~mv2.jpg',
+    link: 'https://v2.oncyber.io/digitaltopographies',
+    buttonLabel: 'Open Collection'
+  },
+  {
+    id: 'zenbubble',
+    name: 'ZEN BUBBLE RIDER, Virtual Automobile, 2022',
+    description: 'River stones learned patience, surrendering sharp edges to water and time. From these quiet forms emerged the Bubble Rider—a vessel that breathes, floating in gentle constellation. Inside, movement becomes meditation; acceleration feels like deepening breath. It does not conquer distance but transforms journey itself. In a world obsessed with speed, it offers rhythm, turning travel into prayer.',
+    subtext: 'Explore more at Design from the top menu.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_2d2f0782942f4f6dbe6d2f8d4e29f217~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_d84a54e9f05e454a92cc8df1c0d72209~mv2.jpg',
+    link: 'https://app.vectary.com/p/5IJ3fz7ZRSeZiqOq17WLeZ',
+    buttonLabel: 'Drive Zen'
+  },
+  {
+    id: 'mermaidchair',
+    name: 'MERMAID CHAIR, Virtual Chair, 2021',
+    description: 'This is furniture for the post-physical age, designed for spaces that may exist only in collective imagination, yet somehow more real than anything we can touch. It invites us to sit not just with our bodies but with our minds, to rest not just our weight but our preconceptions about what objects can be and mean.',
+    subtext: 'The first chair ever minted on Ethereum | Designed May 2020',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_a2215b83bd634f39ad76c5ac0707eef~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_1bb979e7beeb40caa7e8b9455e1688bb~mv2.jpg',
+    link: 'https://app.vectary.com/p/4JF24dDWQEjfgAUUwPZTLZ',
+    buttonLabel: 'Sit Here'
+  },
+  {
+    id: 'dfw_design_market',
+    name: 'DFW Design Market',
+    description: 'Furniture, Sculpture, Automobile design for virtual habitats, on-chain glb. files. DM for inquiries.',
+    subtext: 'Mint your furniture today',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_922f3243f1cb44e1937da3a3c4f61488~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_2598bd0a3bab4c419b1939d8cee8b485~mv2.png',
+    link: 'https://opensea.io/collection/dfw-design',
+    buttonLabel: 'Open Market'
+  },
+  {
+    id: 'dfw_who',
+    name: 'DFW?',
+    description: 'Digital Forgery Workshop is a design practice founded in Milan, operating at the critical intersection of architecture, fashion, art, and technology. Emerging from architectural roots, the workshop has evolved into a defining voice in virtual spatial design...',
+    subtext: 'Explore more at Info from the top menu, or talk with the agent on the right below.',
+    thumbnailUrl: 'https://static.wixstatic.com/media/54a996_5a17303dc4d246f1818591922f059ebe~mv2.png',
+    imageUrl: 'https://static.wixstatic.com/media/54a996_c4c2d6de38af47b099a5042ebeb14dbd~mv2.png',
+    htmlUrl: 'https://raw.githubusercontent.com/decentralize-dfw/finder/main/legacypage.html',
+    buttonLabel: 'Read Profile'
+  }
+];
+
+/* =========================
+   STATE / DOM
+   ========================= */
+const appEl = document.getElementById('app');
+const loaderEl = document.getElementById('loading');
+const loadText = document.getElementById('loadText');
+const galleryEl = document.getElementById('gallery');
+let openViewer = null;
+
+/* =========================
+   HELPERS (hatasız)
+   ========================= */
+function esc(s){
+  return String(s)
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;')
+    .replace(/'/g,'&#39;');
+}
+
+/* İlk koddaki gibi basit embeddable kontrolü (blocklist) */
+function isEmbeddable(url){
+  try{
+    const h = new URL(url).hostname.toLowerCase();
+    const block = [
+      'opensea.io','www.opensea.io',
+      'x.com','www.x.com','twitter.com','www.twitter.com',
+      'instagram.com','www.instagram.com',
+    ];
+    return !block.some(dom => h===dom || h.endsWith('.'+dom));
+  }catch(e){ return false; }
+}
+
+async function fetchHtml(url){
+  try{
+    const r = await fetch(url,{mode:'cors'});
+    if(!r.ok) throw new Error('HTTP '+r.status);
+    return await r.text();
+  }catch(e){ return null; }
+}
+function forceWhiteBackground(html){
+  return '<style>html,body{background:#fff !important;color:#000 !important;}</style>' + (html||'');
+}
+
+/* =========================
+   RENDER
+   ========================= */
+function slideHTML(m){
+  const buttonText = (m.buttonLabel && String(m.buttonLabel).trim()) || 'ENTER';
+  const bg = m.imageUrl ? `background-image:url('${m.imageUrl}');` : '';
+  const name = m.name ? esc(m.name) : '';
+  const desc = m.description ? esc(m.description) : '';
+  const sub  = (m.subtext ? esc(m.subtext) : '&nbsp;');
+
+  return `
+    <section class="slide" data-id="${m.id}">
+      <div class="visual" style="${bg}"></div>
+
+      <div class="center-stack">
+        <div class="media-title">${name}</div>
+        <div class="enter-wrap">
+          <div class="enter-btn" data-action="enter">${esc(buttonText)}</div>
+          <div class="enter-hint">Enter’a basınca bu slaytın görsel alanı webviewer olur</div>
+        </div>
+      </div>
+
+      <div class="bottom-stack">
+        <div class="meta-text">${desc ? `<div class="media-description">${desc}</div>` : ``}</div>
+        <div class="media-subtext">${sub}</div>
+      </div>
+
+      <div class="viewer" data-viewer>
+        <iframe class="viewer-iframe" allow="autoplay; fullscreen; xr-spatial-tracking; microphone; camera; gamepad; vr" allowfullscreen referrerpolicy="no-referrer"></iframe>
+        <div class="viewer-controls">
+          <button class="ctl-btn" data-action="open-new">Open in a new tab</button>
+          <button class="ctl-btn" data-action="fullscreen">Full Screen</button>
+          <button class="ctl-btn" data-action="quit">Quit</button>
+        </div>
+      </div>
+    </section>
+  `;
+}
+function renderSlides(){ galleryEl.innerHTML = MEDIA.map(slideHTML).join(''); }
+
+/* =========================
+   VIEWER — İLK KOD MANTIĞI
+   ========================= */
+async function openExperienceForSlide(slideEl, media){
+  if(openViewer){ closeExperience(openViewer.slideEl); }
+
+  const viewer = slideEl.querySelector('[data-viewer]');
+  const iframe = viewer.querySelector('.viewer-iframe');
+  const visual = slideEl.querySelector('.visual');
+  const center = slideEl.querySelector('.center-stack');
+  const bottom = slideEl.querySelector('.bottom-stack');
+  const btnOpen = viewer.querySelector('[data-action="open-new"]');
+  const btnFS   = viewer.querySelector('[data-action="fullscreen"]');
+
+  // --- 1) ÖNCE LINK EMBED KARARI (popup güvenli) ---
+  let mode = null; // 'html' | 'url'
+  if (media.link) {
+    if (!isEmbeddable(media.link)) {
+      // kullanıcı jestinin aynı senkron tikinde çalışır → popup bloklanmaz
+      window.open(media.link,'_blank','noopener,noreferrer');
+      return;
+    } else {
+      // embed dene
+      iframe.removeAttribute('srcdoc');
+      iframe.src = media.link;
+      viewer.classList.remove('white');
+      btnOpen.style.display='';
+      btnFS.style.display='';
+      btnOpen.dataset.href = media.link;
+      mode = 'url';
+
+      // --- 1.a) Embed fallback: 2s içinde load gelmezse yeni sekme ---
+      let loaded = false;
+      const onLoad = () => { loaded = true; iframe.removeEventListener('load', onLoad); };
+      iframe.addEventListener('load', onLoad);
+      setTimeout(() => {
+        if (!loaded) {
+          window.open(media.link,'_blank','noopener,noreferrer');
+          closeExperience(slideEl);
+        }
+      }, 2000);
+    }
+  }
+
+  // --- 2) HTML MODU (yalnızca link yoksa devreye girsin) ---
+  if(!mode && media.htmlContent){
+    iframe.removeAttribute('src');
+    iframe.srcdoc = forceWhiteBackground(media.htmlContent);
+    viewer.classList.add('white');
+    btnOpen.style.display='none';
+    btnFS.style.display='none';
+    mode = 'html';
+  } else if(!mode && media.htmlUrl){
+    const html = await fetchHtml(media.htmlUrl); // burada await serbest; popup yok
+    if(html){
+      iframe.removeAttribute('src');
+      iframe.srcdoc = forceWhiteBackground(html);
+      viewer.classList.add('white');
+      btnOpen.style.display='none';
+      btnFS.style.display='none';
+      mode = 'html';
+    }
+  }
+
+  if(!mode){
+    alert('Bu öğe için görüntülenecek bir içerik bulunamadı.');
+    return;
+  }
+
+  // --- UI toggle ---
+  visual.classList.add('fadeout');
+  center.classList.add('hidden');
+  bottom.classList.add('hidden');
+  viewer.classList.add('active');
+
+  setupAutoQuitObserver(slideEl);
+  openViewer = { slideEl };
+}
+
+
+function closeExperience(slideEl){
+  const viewer = slideEl.querySelector('[data-viewer]');
+  const iframe = viewer?.querySelector('.viewer-iframe');
+  const visual = slideEl.querySelector('.visual');
+  const center = slideEl.querySelector('.center-stack');
+  const bottom = slideEl.querySelector('.bottom-stack');
+  if(!viewer) return;
+
+  if(iframe){
+    iframe.src = 'about:blank';
+    iframe.removeAttribute('srcdoc');
+  }
+  viewer.classList.remove('active','white');
+  visual.classList.remove('fadeout');
+  center.classList.remove('hidden');
+  bottom.classList.remove('hidden');
+
+  teardownAutoQuitObserver(slideEl);
+  if(openViewer && openViewer.slideEl===slideEl){ openViewer=null; }
+}
+
+/* =========================
+   AUTO-QUIT on SCROLL (yarım ekrandan az görünürse kapanır)
+   ========================= */
+const visObservers=new Map();
+function setupAutoQuitObserver(slideEl){
+  teardownAutoQuitObserver(slideEl);
+  const obs=new IntersectionObserver(([entry])=>{
+    if(entry.intersectionRatio<0.5){ closeExperience(slideEl); }
+  },{threshold:[0,0.5,1]});
+  obs.observe(slideEl); visObservers.set(slideEl,obs);
+}
+function teardownAutoQuitObserver(slideEl){
+  const o=visObservers.get(slideEl); if(o){o.disconnect(); visObservers.delete(slideEl);}
+}
+
+/* =========================
+   EVENTS
+   ========================= */
+function setupEvents(){
+  galleryEl.addEventListener('click', (e)=>{
+    const btn = e.target.closest('[data-action]'); if(!btn) return;
+    const slideEl = btn.closest('.slide'); if(!slideEl) return;
+    const id = slideEl.getAttribute('data-id');
+    const media = MEDIA.find(x=>String(x.id)===String(id));
+    const action = btn.getAttribute('data-action');
+
+    if(action==='enter'){ openExperienceForSlide(slideEl, media); }
+    else if(action==='quit'){ closeExperience(slideEl); }
+    else if(action==='fullscreen'){
+      const wrap = slideEl.querySelector('[data-viewer]');
+      try{ if(wrap.requestFullscreen) wrap.requestFullscreen(); }catch(e){}
+    }else if(action==='open-new'){
+      const href = btn.dataset.href; if(href) window.open(href,'_blank','noopener,noreferrer');
+    }
+  });
+
+  // Enter tuşu: ekrandaki en merkezi slaytı aç
+  document.addEventListener('keydown',(e)=>{
+    if(e.key==='Enter' && !e.repeat){
+      const mid = window.scrollY + window.innerHeight/2;
+      const slides=[...document.querySelectorAll('.slide')];
+      let best=null,bd=Infinity;
+      for(const sl of slides){
+        const r=sl.getBoundingClientRect();
+        const c=window.scrollY + r.top + r.height/2;
+        const d=Math.abs(c-mid);
+        if(d<bd){bd=d;best=sl;}
+      }
+      if(best){
+        const id=best.getAttribute('data-id'); const media=MEDIA.find(x=>String(x.id)===String(id));
+        if(media) openExperienceForSlide(best,media);
+      }
+    }
+  });
+}
+
+/* =========================
+   LOADER & INIT
+   ========================= */
+function preloadImages(urls){
+  const uniq=[...new Set(urls.filter(Boolean))];
+  if(!uniq.length){ loadText.textContent='Forging... 100%'; return Promise.resolve(); }
+  let loaded=0;
+  return Promise.all(uniq.map(url=>new Promise(res=>{
+    const img=new Image();
+    img.onload=img.onerror=()=>{ loaded++; loadText.textContent='Forging... '+Math.round((loaded/uniq.length)*100)+'%'; res(); };
+    img.src=url;
+  })));
+}
+async function init(){
+  await new Promise(r=>requestAnimationFrame(()=>r()));
+  const imgs=[]; MEDIA.forEach(m=>{ if(m.imageUrl) imgs.push(m.imageUrl); if(m.thumbnailUrl) imgs.push(m.thumbnailUrl); });
+  await preloadImages(imgs);
+  galleryEl.innerHTML = MEDIA.map(slideHTML).join('');
+  setupEvents();
+  loaderEl.style.display='none';
+  appEl.classList.add('ready');
+}
+init();
+</script>
+</body>
+</html>
