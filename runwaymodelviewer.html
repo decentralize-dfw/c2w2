@@ -68,22 +68,34 @@
             width: 15%;
             height: calc(100vh - 20px);
             max-width: 250px;
-            overflow-y: hidden; /* Değiştirildi: auto -> hidden */
+            overflow-y: auto; /* Değiştirildi: auto -> hidden */
             padding: 10px;
             box-sizing: border-box;
             font-size: 12px;
         }
 
         #avatar-list::-webkit-scrollbar {
-            display: none; /* Kaldırıldı (veya gizlendi) */
+            width: 6px; /* Çubuğun kalınlığı */
+            display: block; /* Görünür yapıyoruz */
         }
-        #avatar-list::-webkit-scrollbar-thumb {
-            display: none; /* Kaldırıldı (veya gizlendi) */
+       #avatar-list::-webkit-scrollbar {
+            width: 6px; /* Çubuğun kalınlığı */
+            display: block; /* Görünür yapıyoruz */
         }
         #avatar-list::-webkit-scrollbar-track {
-            display: none; /* Kaldırıldı (veya gizlendi) */
+            background: rgba(255, 255, 255, 0.05); /* Arka plan (ray) rengi */
+            border-radius: 4px;
+            margin: 5px 0;
+        }
+#avatar-list::-webkit-scrollbar-thumb {
+            background: var(--muted); /* Tutacak rengi (gri) */
+            border-radius: 4px;
         }
 
+        #avatar-list::-webkit-scrollbar-thumb:hover {
+            background: var(--fg); /* Üzerine gelince parlayan beyaz */
+            cursor: grab;
+        }
         .avatar-item {
             display: flex;
             align-items: center;
@@ -659,15 +671,15 @@
             'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/xeu2-900--v2-threejs-opt-v7.glb', // Model 37
             'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/papaz-1000-threejs-opt-v29.glb', // Model 38
             'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/sleekrobobitchspikey-1000-opt-v36.glb', // Model 39
-            'httpss://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/donmac-1000-opt-v15.glb', // Model 40
+            'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/donmac-1000-opt-v15.glb', // Model 40
             'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/redwearsdfw-1000-opt-v33.glb', // Model 41
             'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/cybergesu-1000-opt-v12.glb', // Model 42
             'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/steve-1000com-opt-v38.glb', // Model 43
-            'httpss://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/millefeuille-dobby-1000coms-opt-v26.glb', // Model 44
+            'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/millefeuille-dobby-1000coms-opt-v26.glb', // Model 44
             'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/junya-1000-opt-v42.glb', // Model 45
-            'httpss://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/electrogod-1000-threejs-opt-v43.glb', // Model 46
-            'httpss://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/davicni-1000-threejs-opt-v14.glb', // Model 47
-            'httpss://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/memelegancesuit-1000-fup-opt-v24.glb', // Model 48
+            'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/electrogod-1000-threejs-opt-v43.glb', // Model 46
+            'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/davicni-1000-threejs-opt-v14.glb', // Model 47
+            'https://raw.githubusercontent.com/decentralize-dfw/c2w2runwayglbmodels1000/main/memelegancesuit-1000-fup-opt-v24.glb', // Model 48
             'https://raw.githubusercontent.com/decentralize-dfw/c2w2runway/main/finale.glb' // Model 49
         ];
         const modelDescriptions = [
